@@ -124,7 +124,35 @@ const received_mail* Client::checkmail(std::vector<received_mail> _rcv_mailbox, 
 }
 
 void Client::send_thread_func() {
-    
+    auto get_receiver = [this](){
+        std::string _receiver = "";
+        const char* tmp_buf = send_buf;
+        while (*tmp_buf == ' ') {
+            if (*tmp_buf == '\0') return static_cast<std::string>("");
+            ++tmp_buf;
+        }
+        while (*tmp_buf != ' ') {
+            if (*tmp_buf == '\0') return static_cast<std::string>("");
+            _receiver += *tmp_buf;
+            ++tmp_buf;
+        }
+        return _receiver;
+    };
+    auto get_content = [this](){
+        std::string _content;
+        const char* tmp_buf = send_buf;
+        while ((*tmp_buf != '\"') && (*tmp_buf != '\'')) {
+            if (*tmp_buf == '\0') return static_cast<std::string>("");
+            ++tmp_buf;
+        }
+        ++tmp_buf;
+        while ((*tmp_buf != '\"') && (*tmp_buf != '\'')) {
+            if (*tmp_buf == '\0') return _content;
+            _content += *tmp_buf;
+            ++tmp_buf;
+        }
+        return _content;
+    };
     while(1) {
         std::unique_lock<std::mutex> ulock(send_mut);
         send_cv.wait(ulock, [this](){return send_buf[0] != '\0';});
@@ -132,8 +160,8 @@ void Client::send_thread_func() {
             std::cerr << "sent failed\n";
             continue;
         }
+        sent_mailbox.emplace_back<sent_mail>({get_receiver(), get_content()});
         send_buf[0] = '\0';
-
     }
 }
 

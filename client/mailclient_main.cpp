@@ -1,5 +1,4 @@
 #include "mailclient_ctrl.h"
-#include <iostream>
 
 Client my_client;
 

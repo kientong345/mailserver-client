@@ -1,5 +1,4 @@
 #include "mailserver_ctrl.h"
-#include <iostream>
 
 int main() {
     Server* my_server = Server::getInstance();

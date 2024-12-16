@@ -8,6 +8,7 @@
 #include <utility>
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 #include <condition_variable>
 #include "mailclient_inc.h"
 
@@ -22,7 +23,7 @@ public:
     ERROR_CODE receiveResponse(std::string& _res); // to be delete
     void start();
     void shutdown();
-    const sent_mail* checkmail(std::vector<sent_mail> _sent_mailbox, uint16_t _mail_position) const;
+    const sent_mail* checkmail(std::vector<sent_mail> _sent_mailbox, uint16_t _mail_position);
     const received_mail* checkmail(std::vector<received_mail> _rcv_mailbox, uint16_t _mail_position) const;
 
 private:
@@ -35,6 +36,8 @@ private:
     std::thread recv_thread;
     std::mutex send_mut;
     std::condition_variable send_cv;
+    std::shared_mutex sent_mailbox_mut;
+    std::shared_mutex rcv_mailbox_mut;
 
 private:
     void send_thread_func();

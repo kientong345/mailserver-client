@@ -89,9 +89,11 @@ void Client::shutdown() {
 
 }
 
-const sent_mail* Client::checkmail(std::vector<sent_mail> _sent_mailbox, uint16_t _mail_position) const {
-    if ((_mail_position-1 > _sent_mailbox.size()) && (_mail_position != NEWEST_MAIL)) return nullptr;
+const sent_mail* Client::checkmail(std::vector<sent_mail> _sent_mailbox, uint16_t _mail_position) {
     sent_mail* _mail = nullptr;
+
+    std::shared_lock<std::shared_mutex> slock(sent_mailbox_mut);
+    if ((_mail_position-1 > _sent_mailbox.size()) && (_mail_position != NEWEST_MAIL)) return nullptr;
     switch (_mail_position) {
     case OLDEST_MAIL:
         _mail = &_sent_mailbox.at(0);
@@ -103,6 +105,8 @@ const sent_mail* Client::checkmail(std::vector<sent_mail> _sent_mailbox, uint16_
         _mail = &_sent_mailbox.at(_mail_position-1);
         break;
     }
+    slock.unlock();
+
     return _mail;
 }
 
@@ -183,6 +187,7 @@ void Client::send_thread_func() {
             continue;
         }
         if (get_req_type() == "sendto") {
+            std::lock_guard<std::shared_mutex> glock(sent_mailbox_mut);
             sent_mailbox.emplace_back<sent_mail>({get_receiver(), get_content()});
         }
         send_buf[0] = '\0';
@@ -219,6 +224,7 @@ void Client::recv_thread_func() {
     while(1) {
         int bytercv = recv(client_fd, rcv_buf, BUF_SIZE, 0);
         rcv_buf[bytercv] = '\0';
+        std::lock_guard<std::shared_mutex> slock(rcv_mailbox_mut);
         received_mailbox.emplace_back<received_mail>({get_sender(), get_content()});
         rcv_buf[0] = '\0';
     }
@@ -303,18 +309,22 @@ void Client::executeRequest(const std::pair<REQ_TYPE, std::shared_ptr<void>>& _r
         std::string type_ = content->first;
         uint16_t pos_ = content->second;
         if (type_ == "sent_mailbox") {
+            std::shared_lock<std::shared_mutex> slock(sent_mailbox_mut);
             if (pos_ > sent_mailbox.size()) std::cout << "mail out of range\n";
             else {
                 std::cout << "To: " + sent_mailbox[pos_-1].receiver + "\n";
                 std::cout << "\'" + sent_mailbox[pos_-1].content + "\'\n";
             }
+            slock.unlock();
         }
         else if (type_ == "received_mailbox") {
+            std::shared_lock<std::shared_mutex> slock(rcv_mailbox_mut);
             if (pos_ > received_mailbox.size()) std::cout << "mail out of range\n";
             else {
                 std::cout << "From: " + received_mailbox[pos_-1].sender + "\n";
                 std::cout << "\'" + received_mailbox[pos_-1].content + "\'\n";
             }
+            slock.unlock();
         }
     }
     else if (req_type == REQ_DELETEMAIL) {
@@ -322,10 +332,12 @@ void Client::executeRequest(const std::pair<REQ_TYPE, std::shared_ptr<void>>& _r
         std::string type_ = content->first;
         uint16_t pos_ = content->second;
         if (type_ == "sent_mailbox") {
+            std::lock_guard<std::shared_mutex> slock(sent_mailbox_mut);
             if (pos_ > sent_mailbox.size()) std::cout << "mail out of range\n";
             else sent_mailbox.erase(sent_mailbox.begin() + pos_-1);
         }
         else if (type_ == "received_mailbox") {
+            std::lock_guard<std::shared_mutex> slock(rcv_mailbox_mut);
             if (pos_ > received_mailbox.size()) std::cout << "mail out of range\n";
             else received_mailbox.erase(received_mailbox.begin() + pos_-1);
         }
@@ -345,7 +357,9 @@ void Client::updateMyName() {
             const received_mail* _mail = nullptr;
             uint8_t cnt = 0;
             while ((_mail == nullptr)) {
+                std::shared_lock<std::shared_mutex> slock(rcv_mailbox_mut);
                 _mail = checkmail(received_mailbox, NEWEST_MAIL);
+                slock.unlock();
             }
             THIS_CLIENT_NAME = _mail->content;
         }

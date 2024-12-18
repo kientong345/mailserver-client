@@ -76,6 +76,7 @@ void Client::start() {
     send_thread = std::thread(&Client::send_thread_func, this);
     recv_thread = std::thread(&Client::recv_thread_func, this);
     updateMyName();
+    gui.displayMainScreen();
 
     while(1) {
         std::string request;
@@ -327,19 +328,19 @@ void Client::executeRequest(const std::pair<REQ_TYPE, std::shared_ptr<void>>& _r
         uint16_t pos_ = content->second;
         if (type_ == "sent_mailbox") {
             std::shared_lock<std::shared_mutex> slock(sent_mailbox_mut);
-            if (pos_ > sent_mailbox.size()) std::cout << "mail out of range\n";
+            if (pos_ == 0) gui.displaySentMailbox(sent_mailbox);
             else {
-                std::cout << "To: " + sent_mailbox[pos_-1].receiver + "\n";
-                std::cout << "\'" + sent_mailbox[pos_-1].content + "\'\n";
+                if (pos_ > sent_mailbox.size()) std::cout << "mail out of range\n";
+                else gui.displaySentMail(sent_mailbox, pos_);
             }
             slock.unlock();
         }
         else if (type_ == "received_mailbox") {
             std::shared_lock<std::shared_mutex> slock(rcv_mailbox_mut);
-            if (pos_ > received_mailbox.size()) std::cout << "mail out of range\n";
+            if (pos_ == 0) gui.displayReceivedMailbox(received_mailbox);
             else {
-                std::cout << "From: " + received_mailbox[pos_-1].sender + "\n";
-                std::cout << "\'" + received_mailbox[pos_-1].content + "\'\n";
+                if (pos_ > received_mailbox.size()) std::cout << "mail out of range\n";
+                else gui.displayReceivedMail(received_mailbox, pos_);
             }
             slock.unlock();
         }

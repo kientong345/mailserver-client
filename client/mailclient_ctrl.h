@@ -11,6 +11,7 @@
 #include <shared_mutex>
 #include <condition_variable>
 #include "mailclient_inc.h"
+#include "client_GUI.h"
 
 class Client {
 public:
@@ -38,6 +39,8 @@ private:
     std::condition_variable send_cv;
     std::shared_mutex sent_mailbox_mut;
     std::shared_mutex rcv_mailbox_mut;
+
+    Client_GUI gui;
 
 private:
     void send_thread_func();

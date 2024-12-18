@@ -25,6 +25,11 @@ typedef enum {
 
 typedef enum {
     REQ_UNIDENTIFY,
+    REQ_SENDTO,
+    REQ_CHANGENAME,
+    REQ_SEARCH,
+    REQ_TERM,
+    REQ_WHATISMYNAME,
     REQ_TOSERVER,
     REQ_SHOWMAIL,
     REQ_DELETEMAIL

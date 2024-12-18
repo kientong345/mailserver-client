@@ -42,7 +42,7 @@ private:
 private:
     void send_thread_func();
     void recv_thread_func();
-    std::pair<REQ_TYPE, std::shared_ptr<void>> parseRequest(const std::string& _message);
+    std::pair<REQ_TYPE, std::shared_ptr<void>> parseRequest(const std::string& _message) const;
     void executeRequest(const std::pair<REQ_TYPE, std::shared_ptr<void>>& _req);
     void updateMyName();
 

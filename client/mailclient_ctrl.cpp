@@ -230,7 +230,7 @@ void Client::recv_thread_func() {
     }
 }
 
-std::pair<REQ_TYPE, std::shared_ptr<void>> Client::parseRequest(const std::string& _message) {
+std::pair<REQ_TYPE, std::shared_ptr<void>> Client::parseRequest(const std::string& _message) const {
     /*  protocol syntax:
     toserver <message>
     showmail <sent/received> <mail_position>
@@ -264,14 +264,24 @@ std::pair<REQ_TYPE, std::shared_ptr<void>> Client::parseRequest(const std::strin
     /* get req_type */
     req_type = get_next_word();
     /* analyze */
-    if (req_type == "changename") updateMyName();
-
-    if ((req_type == "sendto") ||
-        (req_type == "changename") ||
-        (req_type == "search") ||
-        (req_type == "term") ||
-        (req_type == "whatismyname")) {
-        req.first = REQ_TOSERVER;
+    if (req_type == "sendto") {
+        req.first = REQ_SENDTO;
+        req.second = std::move(std::make_shared<std::string>(_message));
+    }
+    else if (req_type == "changename") {
+        req.first = REQ_CHANGENAME;
+        req.second = std::move(std::make_shared<std::string>(_message));
+    }
+    else if (req_type == "search") {
+        req.first = REQ_SEARCH;
+        req.second = std::move(std::make_shared<std::string>(_message));
+    }
+    else if (req_type == "term") {
+        req.first = REQ_TERM;
+        req.second = std::move(std::make_shared<std::string>(_message));
+    }
+    else if (req_type == "whatismyname") {
+        req.first = REQ_WHATISMYNAME;
         req.second = std::move(std::make_shared<std::string>(_message));
     }
     else if (req_type == "toserver") {
@@ -300,7 +310,14 @@ std::pair<REQ_TYPE, std::shared_ptr<void>> Client::parseRequest(const std::strin
 
 void Client::executeRequest(const std::pair<REQ_TYPE, std::shared_ptr<void>>& _req) {
     REQ_TYPE req_type = _req.first;
-    if (req_type == REQ_TOSERVER) {
+    if (req_type == REQ_CHANGENAME) updateMyName();
+
+    if ((req_type == REQ_TOSERVER) ||
+        (req_type == REQ_SENDTO) ||
+        (req_type == REQ_CHANGENAME) ||
+        (req_type == REQ_SEARCH) ||
+        (req_type == REQ_TERM) ||
+        (req_type == REQ_WHATISMYNAME)) {
         std::string _message = *(static_cast<std::string*>(_req.second.get()));
         while(sendRequest(_message) != E_SUCCESS);
     }

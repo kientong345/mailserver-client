@@ -1,5 +1,5 @@
 all:
-	g++ mailserver_ctrl.cpp mailserver_main.cpp -o mailserver
+	g++ server_ctrl.cpp database_service.cpp transport_service.cpp server_ultility.cpp -o server
 
 clean:
-	rm ./mailserver
+	rm ./server

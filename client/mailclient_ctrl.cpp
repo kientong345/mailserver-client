@@ -75,6 +75,10 @@ ERROR_CODE Client::receiveResponse(std::string& _res) {
 void Client::start() {
     send_thread = std::thread(&Client::send_thread_func, this);
     recv_thread = std::thread(&Client::recv_thread_func, this);
+    std::cout << "enter user name: ";
+    std::string reg_name;
+    std::getline(std::cin, reg_name);
+    sendRequest(reg_name);
     updateMyName();
     gui.displayMainScreen();
 

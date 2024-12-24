@@ -52,14 +52,16 @@ void Client_GUI::displaySentMail(const std::vector<sent_mail>& _sent_mailbox, co
               << "                                                             \n";
     std::cout << "to: " << _sent_mailbox[_position-1].receiver << "\n";
     std::cout << "content: " << _sent_mailbox[_position-1].content << "\n";
+    std::cout << "-------------------------------------------------------------\n";
 }
 
 void Client_GUI::displayReceivedMail(const std::vector<received_mail>& _rcv_mailbox, const uint16_t& _position) const {
     std::cout << "-------------------------------------------------------------\n"
               << "                           CONTENT                           \n"
               << "                                                             \n";
-    std::cout << "to: " << _rcv_mailbox[_position-1].sender << "\n";
+    std::cout << "from: " << _rcv_mailbox[_position-1].sender << "\n";
     std::cout << "content: " << _rcv_mailbox[_position-1].content << "\n";
+    std::cout << "-------------------------------------------------------------\n";
 }
 
 void Client_GUI::displayPreviousPage() {

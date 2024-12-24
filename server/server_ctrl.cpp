@@ -85,10 +85,10 @@ int Server_Ctrl::execute_request(const req_t& _request) {
     }
     else if (req_type == REQ_DELETEMAIL) {
         auto content = static_cast<std::pair<std::string, uint16_t>*>(_request.second.get());
-        if (content->first == "sent_mailbox") {
+        if (content->first == SENT_MAILBOX) {
             _database->delete_sent_mail(_client_name, content->second);
         }
-        else if (content->first == "received_mailbox") {
+        else if (content->first == RCV_MAILBOX) {
             _database->delete_received_mail(_client_name, content->second);
         }
         else _transporter->response("[server]wrong mailbox type");

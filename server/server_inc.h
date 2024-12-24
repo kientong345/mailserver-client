@@ -23,6 +23,9 @@
 #define TERMINATE                      "term"
 #define WHATISMYNAME                   "whatismyname"
 
+#define SENT_MAILBOX                   "sent_mailbox"
+#define RCV_MAILBOX                    "received_mailbox"
+
 typedef enum {
     REQ_UNIDENTIFY,
     REQ_SENDTO,        /* connect to ... */

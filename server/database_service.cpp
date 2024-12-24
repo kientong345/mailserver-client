@@ -33,7 +33,9 @@ void Database::load_client_table() {
  */
 void Database::save_client_info(const std::string& client_name, const struct sockaddr_in& client_addr) {
     if (!client_name_exist(client_name)) {
-        client_table->insert({client_name, std::make_shared<struct client_data_t>()});
+        auto _client_data = std::make_shared<struct client_data_t>();
+        _client_data->address = client_addr;
+        client_table->insert({client_name, _client_data});
     }
     else {
         client_table->at(client_name)->address = client_addr;

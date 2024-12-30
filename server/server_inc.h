@@ -16,25 +16,40 @@
 
 #define NOT_FOUND                      404
 
+#define LOGIN                          "login"
+#define REGISTER                       "register"
 #define SENDTO                         "sendto"
 #define DELETEMAIL                     "deletemail"
 #define CHANGENAME                     "changename"
 #define SEARCH                         "search"
 #define TERMINATE                      "term"
 #define WHATISMYNAME                   "whatismyname"
+#define CHANGEPASSWORD                 "changepassword"
 
 #define SENT_MAILBOX                   "sent_mailbox"
 #define RCV_MAILBOX                    "received_mailbox"
 
 typedef enum {
     REQ_UNIDENTIFY,
+    REQ_LOGIN,
+    REQ_REGISTER,
     REQ_SENDTO,        /* connect to ... */
     REQ_DELETEMAIL,    /* delete a mail in mailbox */
     REQ_CHANGENAME,    /* change client name in client table */
     REQ_SEARCH,        /* req to search on client table */
     REQ_TERMINATE,     /* terminate connect req(with server) */
-    REQ_WHATISMYNAME   /* response the name of requester */
+    REQ_WHATISMYNAME,   /* response the name of requester */
+    REQ_CHANGEPASSWORD
 } REQ_TYPE;
+
+typedef enum {
+    E_SUCCESS,
+    E_TERM,
+    E_LOGIN_FAILED,
+    E_LOGIN_SUCCEED,
+    E_REGISTER_FAILED,
+    E_REGISTER_SUCCEED
+} ERROR_CODE;
 
 typedef struct {
     long mtype;
@@ -57,6 +72,7 @@ typedef struct received_mail {
 
 struct client_data_t {
     struct sockaddr_in address;
+    std::string password;
     std::vector<sent_mail> sent_mailbox;
     std::vector<received_mail> received_mailbox;
 };

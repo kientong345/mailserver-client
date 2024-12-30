@@ -31,10 +31,11 @@ void Database::load_client_table() {
  * @param client_addr: address of the client (ip and port)
  * @return none
  */
-void Database::save_client_info(const std::string& client_name, const struct sockaddr_in& client_addr) {
+void Database::save_client_info(const std::string& client_name, const std::string& password, const struct sockaddr_in& client_addr) {
     if (!client_name_exist(client_name)) {
         auto _client_data = std::make_shared<struct client_data_t>();
         _client_data->address = client_addr;
+        _client_data->password = password;
         client_table->insert({client_name, _client_data});
     }
     else {
@@ -128,6 +129,39 @@ void Database::update_client_name(const std::string& client_name, const std::str
     auto _client_data(client_table->at(client_name));
     client_table->erase(client_name);
     client_table->insert({new_name, _client_data});
+}
+
+/**
+ * @brief update password of a client
+ * @param client_name: name of the client
+ * @param new_name: the new password
+ * @return none
+ */
+void Database::update_client_password(const std::string& client_name, const std::string& new_pass) {
+    client_table->at(client_name)->password = new_pass;
+}
+
+/**
+ * @brief update address of a client
+ * @param client_name: name of the client
+ * @param new_name: the new address
+ * @return none
+ */
+void Database::update_client_address(const std::string& client_name, const struct sockaddr_in& new_address) {
+    client_table->at(client_name)->address = new_address;
+}
+
+/**
+ * @brief get current password of a client
+ * @param client_name: name of the client
+ * @return pointer to the password, return null if client name is not existed
+ */
+const std::string* Database::get_client_password(const std::string& client_name) const {
+    if (!client_name_exist(client_name)) {
+        std::cout << "client name not existed\n";
+        return nullptr;
+    }
+    return &(client_table->at(client_name)->password);
 }
 
 /**

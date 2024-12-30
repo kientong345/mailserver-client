@@ -25,7 +25,8 @@ public:
 private:
     void client_handler();
     void mailbox_handler();
-    int execute_request(const req_t& _request);
+    ERROR_CODE execute_request(const req_t& _request);
+    void verify_account();
 
 };
 

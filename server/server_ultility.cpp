@@ -21,7 +21,15 @@ req_t parseRequest(const std::string& _message) {
     req_t req;
     std::string req_type = getWord(_message, 1);
 
-    if (req_type == SENDTO) {
+    if (req_type == LOGIN) {
+        req.first = REQ_LOGIN;
+        req.second = std::make_shared<std::pair<std::string, std::string>>(getWord(_message, 2), getWord(_message, 3));
+    }
+    else if (req_type == REGISTER) {
+        req.first = REQ_REGISTER;
+        req.second = std::make_shared<std::pair<std::string, std::string>>(getWord(_message, 2), getWord(_message, 3));
+    }
+    else if (req_type == SENDTO) {
         req.first = REQ_SENDTO;
         req.second = std::make_shared<std::pair<std::string, std::string>>(getWord(_message, 2), getWord(_message, 3));
         /* word 2: receiver name, word 3: sent content */
@@ -48,6 +56,10 @@ req_t parseRequest(const std::string& _message) {
     else if (req_type == WHATISMYNAME) {
         req.first = REQ_WHATISMYNAME;
         req.second = nullptr;
+    }
+    else if (req_type == CHANGEPASSWORD) {
+        req.first = REQ_CHANGEPASSWORD;
+        req.second = std::make_shared<std::string>(getWord(_message, 2));
     }
     else { // unidentify request
         req.first = REQ_UNIDENTIFY;

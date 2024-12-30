@@ -16,13 +16,16 @@ public:
     static Database* getInstance();
 
     void load_client_table();
-    void save_client_info(const std::string& client_name, const struct sockaddr_in& client_addr);
+    void save_client_info(const std::string& client_name, const std::string& password, const struct sockaddr_in& client_addr);
     void save_sent_mail(const std::string& client_name, const std::string& _receiver, const std::string& _content);
     void save_received_mail(const std::string& client_name, const std::string& _sender, const std::string& _content);
     void delete_sent_mail(const std::string& client_name, const unsigned short& _position);
     void delete_received_mail(const std::string& client_name, const unsigned short& _position);
     void update_client_name(const std::string& client_name, const std::string& new_name);
+    void update_client_password(const std::string& client_name, const std::string& new_pass);
+    void update_client_address(const std::string& client_name, const struct sockaddr_in& new_address);
 
+    const std::string* get_client_password(const std::string& client_name) const;
     const struct sockaddr_in* get_client_addr(const std::string& client_name) const;
     const std::vector<sent_mail>* get_sent_mailbox(const std::string& client_name) const;
     const std::vector<received_mail>* get_received_mailbox(const std::string& client_name) const;

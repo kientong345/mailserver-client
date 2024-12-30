@@ -48,9 +48,8 @@ void Server_Ctrl::server_shutdown() {
 }
 
 void Server_Ctrl::client_handler() {
-    /* the first req from client is alway the client registation name */
-    _client_name = _transporter->receive_request();
-    _database->save_client_info(_client_name, _client_addr);
+    /* the first req' contents from client are always the user_name + password */
+    verify_account();
 
     is_serving = true;
     _transporter->open_mailbox(_client_name);
@@ -61,7 +60,7 @@ void Server_Ctrl::client_handler() {
         std::cout << "server received " + _request + "\n";
         req_t _req = parseRequest(_request);
 
-        if (execute_request(_req) != 0) break;
+        if (execute_request(_req) == E_TERM) break;
     }
     _transporter->disconnect();
     _transporter->end();
@@ -77,9 +76,36 @@ void Server_Ctrl::mailbox_handler() {
     _transporter->close_mailbox();
 }
 
-int Server_Ctrl::execute_request(const req_t& _request) {
+ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     REQ_TYPE req_type = _request.first;
-    if (req_type == REQ_SENDTO) {
+    if (req_type == REQ_LOGIN) {
+        auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
+        if (*(_database->get_client_password(content->first)) == content->second) {
+            _client_name = content->first;
+            _database->update_client_address(_client_name, _client_addr);
+            _transporter->response("login_succeed");
+            return E_LOGIN_SUCCEED;
+        }
+        else {
+            _transporter->response("login_failed");
+            return E_LOGIN_FAILED;
+        }
+    }
+    else if (req_type == REQ_REGISTER) {
+        auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
+        if (!(_database->client_name_exist(content->first))) {
+            _client_name = content->first;
+            std::string _client_password = content->second;
+            _database->save_client_info(_client_name, _client_password, _client_addr);
+            _transporter->response("register_succeed");
+            return E_REGISTER_SUCCEED;
+        }
+        else {
+            _transporter->response("register_failed");
+            return E_REGISTER_FAILED;
+        }
+    }
+    else if (req_type == REQ_SENDTO) {
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
         _transporter->send_to_mailbox(content->first, "[" + _client_name + "]" + content->second);
     }
@@ -135,18 +161,46 @@ int Server_Ctrl::execute_request(const req_t& _request) {
         _transporter->response(msg_back);
     }
     else if (req_type == REQ_TERMINATE) {
-        return 1;
+        return E_TERM;
     }
     else if (req_type == REQ_WHATISMYNAME) {
         std::string msg_back = "[server]" + _client_name;
         _transporter->response(msg_back);
+    }
+    else if (req_type == REQ_CHANGEPASSWORD) {
+        std::string new_pass = *(static_cast<std::string*>(_request.second.get()));
+        _database->update_client_password(_client_name, new_pass);
     }
     else { // req_type == REQ_UNIDENTIFY
         std::string this_req = *(static_cast<std::string*>(_request.second.get()));
         std::cout << "unidentified request: \'" + this_req + "\'\n";
     }
     
-    return 0;
+    return E_SUCCESS;
+}
+
+void Server_Ctrl::verify_account() {
+    while (1) {
+        /* verication_message = [login/register] [user_name] [password] */
+        std::string verification_message = _transporter->receive_request();
+        ERROR_CODE ret = execute_request(parseRequest(verification_message));
+        if (ret == E_LOGIN_SUCCEED) {
+            std::cout << "login successfully\n";
+            break;
+        }
+        else if (ret == E_LOGIN_FAILED) {
+            std::cout << "login fail\n";
+            continue;
+        }
+        else if (ret == E_REGISTER_SUCCEED) {
+            std::cout << "register successfully\n";
+            break;
+        }
+        else if (ret == E_REGISTER_FAILED) {
+            std::cout << "register fail\n";
+            continue;
+        }
+    }
 }
 
 static Server_Ctrl my_server;

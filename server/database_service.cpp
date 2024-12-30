@@ -50,12 +50,12 @@ void Database::save_client_info(const std::string& client_name, const std::strin
  * @param _content: content of the mail
  * @return none
  */
-void Database::save_sent_mail(const std::string& client_name, const std::string& _receiver, const std::string& _content) {
+void Database::save_sent_mail(const std::string& client_name, const std::string& _receiver, const std::string& _content, const std::string& _sent_time) {
     if (!client_name_exist(client_name)) {
         std::cout << "client name not existed\n";
         return;
     }
-    client_table->at(client_name)->sent_mailbox.emplace_back(_receiver, _content);
+    client_table->at(client_name)->sent_mailbox.emplace_back(_receiver, _content, _sent_time);
 }
 
 /**
@@ -65,12 +65,12 @@ void Database::save_sent_mail(const std::string& client_name, const std::string&
  * @param _content: content of the mail
  * @return none
  */
-void Database::save_received_mail(const std::string& client_name, const std::string& _sender, const std::string& _content) {
+void Database::save_received_mail(const std::string& client_name, const std::string& _sender, const std::string& _content, const std::string& _rcv_time) {
     if (!client_name_exist(client_name)) {
         std::cout << "client name not existed\n";
         return;
     }
-    client_table->at(client_name)->received_mailbox.emplace_back(_sender, _content);
+    client_table->at(client_name)->received_mailbox.emplace_back(_sender, _content, _rcv_time);
 }
 
 /**

@@ -108,6 +108,8 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     else if (req_type == REQ_SENDTO) {
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
         _transporter->send_to_mailbox(content->first, "[" + _client_name + "]" + content->second);
+        _database->save_sent_mail(_client_name, content->first, content->second, ""); // "" will be the sent time
+        _database->save_received_mail(content->first, _client_name, content->second, ""); // "" will be the rcv time
     }
     else if (req_type == REQ_DELETEMAIL) {
         auto content = static_cast<std::pair<std::string, uint16_t>*>(_request.second.get());

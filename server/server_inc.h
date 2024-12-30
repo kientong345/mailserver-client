@@ -59,15 +59,17 @@ typedef struct {
 typedef struct sent_mail {
     std::string receiver;
     std::string content;
-    sent_mail(const std::string& _receiver, const std::string& _content) 
-    : receiver(_receiver), content(_content) {}
+    std::string sent_time;
+    sent_mail(const std::string& _receiver, const std::string& _content, const std::string& _sent_time) 
+    : receiver(_receiver), content(_content), sent_time(_sent_time) {}
 } sent_mail;
 
 typedef struct received_mail {
     std::string sender;
     std::string content;
-    received_mail(const std::string& _sender, const std::string& _content) 
-    : sender(_sender), content(_content) {}
+    std::string rcv_time;
+    received_mail(const std::string& _sender, const std::string& _content, const std::string& _rcv_time) 
+    : sender(_sender), content(_content), rcv_time(_rcv_time) {}
 } received_mail;
 
 struct client_data_t {

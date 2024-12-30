@@ -3,6 +3,7 @@
 #include <thread>
 #include <iostream>
 #include <signal.h>
+#include <tuple>
 #include <sys/wait.h>
 
 Server_Ctrl::Server_Ctrl()
@@ -106,10 +107,11 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         }
     }
     else if (req_type == REQ_SENDTO) {
-        auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        _transporter->send_to_mailbox(content->first, "[" + _client_name + "]" + content->second);
-        _database->save_sent_mail(_client_name, content->first, content->second, ""); // "" will be the sent time
-        _database->save_received_mail(content->first, _client_name, content->second, ""); // "" will be the rcv time
+        // sorry for garbage code!
+        auto content = static_cast<std::tuple<std::string, std::string, std::string>*>(_request.second.get());
+        _transporter->send_to_mailbox(std::get<0>(*content), "[" + _client_name + "]" + std::get<1>(*content));
+        _database->save_sent_mail(_client_name, std::get<0>(*content), std::get<1>(*content), std::get<2>(*content));
+        _database->save_received_mail(std::get<0>(*content), _client_name, std::get<1>(*content), std::get<2>(*content));
     }
     else if (req_type == REQ_DELETEMAIL) {
         auto content = static_cast<std::pair<std::string, uint16_t>*>(_request.second.get());

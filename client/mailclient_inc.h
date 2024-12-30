@@ -14,6 +14,8 @@
 
 #define WAIT_MS(TIME)   (std::this_thread::sleep_for(std::chrono::milliseconds(TIME)))
 
+#define CURRENT_TIME    (std::string("0"))
+
 typedef enum {
     E_SUCCESS,
     E_SOCKET_FAILED,

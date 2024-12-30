@@ -271,7 +271,7 @@ std::pair<REQ_TYPE, std::shared_ptr<void>> Client::parseRequest(const std::strin
     /* analyze */
     if (req_type == "sendto") {
         req.first = REQ_SENDTO;
-        req.second = std::move(std::make_shared<std::string>(_message));
+        req.second = std::move(std::make_shared<std::string>(_message + " " + CURRENT_TIME));
     }
     else if (req_type == "changename") {
         req.first = REQ_CHANGENAME;

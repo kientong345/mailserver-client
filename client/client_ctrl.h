@@ -297,6 +297,10 @@ public:
     */
     class Menu_State : public State {
     private:
+        enum class MENU_OPTION {
+            
+        };
+        MENU_OPTION _current_option;
     public:
         Menu_State(Client_Ctrl* _target) : State(_target) {}
         ~Menu_State() = default;

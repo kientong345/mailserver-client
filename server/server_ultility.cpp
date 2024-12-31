@@ -1,6 +1,7 @@
 #include "server_ultility.h"
 #include <sstream>
 #include <tuple>
+#include <memory>
 
 /**
  * @brief get a unique key from given name

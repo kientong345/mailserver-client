@@ -7,7 +7,7 @@ Client_Ctrl::Client_Ctrl()
 : _transporter(nullptr),
   _sent_mailbox(nullptr),
   _received_mailbox(nullptr),
-  _manager(nullptr),
+  _graphic(nullptr),
   _current_mode(UI_MODE) {
 
 }
@@ -20,7 +20,7 @@ void Client_Ctrl::client_init() {
     _transporter = ClientTransporter::getInstance();
     _sent_mailbox = SentMailbox::getInstance();
     _received_mailbox = ReceivedMailbox::getInstance();
-    _manager = ClientManager::getInstance();
+    _graphic = ClientGraphic::getInstance();
 
     _transporter->init();
 }
@@ -28,7 +28,7 @@ void Client_Ctrl::client_init() {
 void Client_Ctrl::client_main() {
     _transporter->connect_to_server(SERVER_IP, SERVER_PORT);
     /* to be change */
-    _manager->set_state(REGISTATION_STATE);
+    ClientManager(this).set_state(STATE_LOGIN);
     std::string _my_name;
     std::cout << "enter your username: ";
     std::getline(std::cin, _my_name);
@@ -39,7 +39,7 @@ void Client_Ctrl::client_main() {
 }
 
 void Client_Ctrl::user_handler() {
-    _manager->set_state(MENU_STATE);
+    ClientManager(this).set_state(STATE_MENU);
    
     while (1) {
         if (_current_mode == UI_MODE) ui_handler();
@@ -48,22 +48,23 @@ void Client_Ctrl::user_handler() {
 }
 
 void Client_Ctrl::ui_handler() {
+    ClientManager _manager(this);
     INPUT_TYPE _input = get_user_input();
     switch (_input) {
     case I_BACK:
-        _manager->back();
+        _manager.back();
         break;
     case I_NEXT:
-        _manager->next();
+        _manager.next();
         break;
     case I_UP:
-        _manager->up();
+        _manager.up();
         break;
     case I_DOWN:
-        _manager->down();
+        _manager.down();
         break;
     case I_SELECT:
-        _manager->select();
+        _manager.select();
         break;
     case I_SWITCH:
         _current_mode = COMMAND_MODE;
@@ -79,11 +80,7 @@ void Client_Ctrl::command_handler() {
     std::string user_req;
     std::getline(std::cin, user_req);
     req_t req = parseRequest(user_req);
-    execute_request(req);
-}
-
-void Client_Ctrl::execute_request(const req_t& _request) {
-
+    ClientManager(this).execute_request(req);
 }
 
 void Client_Ctrl::login() {

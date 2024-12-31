@@ -21,7 +21,7 @@
 //#define __CUSTOM_ADDRESS__
 
 #define __LOGIN_STATE__         (std::make_shared<Login_State>(_client))
-#define __REGISTATION_STATE__   (std::make_shared<Registation_State>(_client))
+#define __REGISTER_STATE__      (std::make_shared<Register_State>(_client))
 #define __MENU_STATE__          (std::make_shared<Menu_State>(_client))
 
 #define __CURRENT_TIME__        (std::string())

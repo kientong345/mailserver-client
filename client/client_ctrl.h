@@ -75,7 +75,7 @@ public:
                 current_state = __LOGIN_STATE__;
                 break;
             case STATE_REGISTATION:
-                current_state = __REGISTATION_STATE__;
+                current_state = __REGISTER_STATE__;
                 break;
             case STATE_MENU:
                 current_state = __MENU_STATE__;
@@ -209,7 +209,7 @@ public:
     | < back                       next > |
     ---------------------------------------
     */
-    class Registation_State : public State {
+    class Register_State : public State {
     private:
         enum class REGISTER_OPTION {
             USER_NAME,
@@ -221,8 +221,8 @@ public:
         std::string _user_name;
         std::string _password;
     public:
-        Registation_State(Client_Ctrl* _target) : State(_target), _current_option(REGISTER_OPTION::USER_NAME) {}
-        ~Registation_State() = default;
+        Register_State(Client_Ctrl* _target) : State(_target), _current_option(REGISTER_OPTION::USER_NAME) {}
+        ~Register_State() = default;
         void show() override {
 
         }

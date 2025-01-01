@@ -2,6 +2,8 @@
 #include "client_ultility.h"
 #include <sstream>
 #include <memory>
+#include <ctime>
+#include <iomanip>
 
 /**
  * @brief wait key input from user
@@ -107,4 +109,17 @@ std::string getWord(const std::string& _sentence, uint8_t _wordpos) {
     }
 
     return word;
+}
+
+/**
+ * @brief get standard time from unix timestamp
+ * @param unix_timestamp: epoch time from 1970
+ * @return current date/time... from epoch time
+ */
+std::string get_std_time(uint64_t unix_timestamp) {
+    std::time_t _time = static_cast<std::time_t>(unix_timestamp);
+    std::tm* local_time = std::localtime(&_time);
+    std::ostringstream oss;
+    oss << std::put_time(local_time, "%c");
+    return oss.str();
 }

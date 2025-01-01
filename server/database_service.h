@@ -17,8 +17,8 @@ public:
 
     void load_client_table();
     void save_client_info(const std::string& client_name, const std::string& password, const struct sockaddr_in& client_addr);
-    void save_sent_mail(const std::string& client_name, const std::string& _receiver, const std::string& _content, const std::string& _sent_time);
-    void save_received_mail(const std::string& client_name, const std::string& _sender, const std::string& _content, const std::string& _rcv_time);
+    void save_sent_mail(const std::string& client_name, const std::string& _receiver, const std::string& _content, uint64_t _sent_time);
+    void save_received_mail(const std::string& client_name, const std::string& _sender, const std::string& _content, uint64_t _rcv_time);
     void delete_sent_mail(const std::string& client_name, const unsigned short& _position);
     void delete_received_mail(const std::string& client_name, const unsigned short& _position);
     void update_client_name(const std::string& client_name, const std::string& new_name);

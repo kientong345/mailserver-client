@@ -48,9 +48,10 @@ void Database::save_client_info(const std::string& client_name, const std::strin
  * @param client_name: name of the client
  * @param _receiver: name of received client of this mail
  * @param _content: content of the mail
+ * @param _sent_time: sent time of the mail (unix timestamp)
  * @return none
  */
-void Database::save_sent_mail(const std::string& client_name, const std::string& _receiver, const std::string& _content, const std::string& _sent_time) {
+void Database::save_sent_mail(const std::string& client_name, const std::string& _receiver, const std::string& _content, uint64_t _sent_time) {
     if (!client_name_exist(client_name)) {
         std::cout << "client name not existed\n";
         return;
@@ -63,9 +64,10 @@ void Database::save_sent_mail(const std::string& client_name, const std::string&
  * @param client_name: name of the client
  * @param _sender: name of client who has sent this mail
  * @param _content: content of the mail
+ * @param _rcv_time: rcv time of the mail (unix timestamp)
  * @return none
  */
-void Database::save_received_mail(const std::string& client_name, const std::string& _sender, const std::string& _content, const std::string& _rcv_time) {
+void Database::save_received_mail(const std::string& client_name, const std::string& _sender, const std::string& _content, uint64_t _rcv_time) {
     if (!client_name_exist(client_name)) {
         std::cout << "client name not existed\n";
         return;

@@ -59,16 +59,16 @@ typedef struct {
 typedef struct sent_mail {
     std::string receiver;
     std::string content;
-    std::string sent_time;
-    sent_mail(const std::string& _receiver, const std::string& _content, const std::string& _sent_time) 
+    uint64_t sent_time;
+    sent_mail(const std::string& _receiver, const std::string& _content, uint64_t _sent_time) 
     : receiver(_receiver), content(_content), sent_time(_sent_time) {}
 } sent_mail;
 
 typedef struct received_mail {
     std::string sender;
     std::string content;
-    std::string rcv_time;
-    received_mail(const std::string& _sender, const std::string& _content, const std::string& _rcv_time) 
+    uint64_t rcv_time;
+    received_mail(const std::string& _sender, const std::string& _content, uint64_t _rcv_time) 
     : sender(_sender), content(_content), rcv_time(_rcv_time) {}
 } received_mail;
 

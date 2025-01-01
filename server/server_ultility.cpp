@@ -33,7 +33,7 @@ req_t parseRequest(const std::string& _message) {
     }
     else if (req_type == SENDTO) {
         req.first = REQ_SENDTO;
-        req.second = std::make_shared<std::tuple<std::string, std::string, std::string>>(getWord(_message, 2), getWord(_message, 3), getWord(_message, 4));
+        req.second = std::make_shared<std::tuple<std::string, std::string, uint64_t>>(getWord(_message, 2), getWord(_message, 3), std::stoull(getWord(_message, 4)));
         /* word 2: receiver name, word 3: sent content */
     }
     else if (req_type == DELETEMAIL) {

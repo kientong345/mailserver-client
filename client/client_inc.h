@@ -24,7 +24,7 @@
 #define __REGISTER_STATE__      (std::make_shared<Register_State>(_client))
 #define __MENU_STATE__          (std::make_shared<Menu_State>(_client))
 
-#define __CURRENT_TIME__        (std::string())
+#define __CURRENT_TIME__        (std::string(std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count()))
 
 #define LOGIN_SUCCEED           (std::string("login succeed"))
 #define LOGIN_FAILED            (std::string("login failed"))
@@ -96,13 +96,13 @@ typedef enum {
 typedef struct {
     std::string receiver;
     std::string content;
-    std::string sent_time;
+    uint64_t sent_time;
 } sent_mail;
 
 typedef struct {
     std::string sender;
     std::string content;
-    std::string rcv_time;
+    uint64_t rcv_time;
 } received_mail;
 
 typedef std::pair<REQ_TYPE, std::shared_ptr<void>>      req_t;

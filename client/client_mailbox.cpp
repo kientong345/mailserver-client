@@ -22,9 +22,9 @@ SentMailbox* SentMailbox::getInstance() {
     return &__instance;
 }
 
-void SentMailbox::save_mail(const std::string& _header, const std::string _content) {
+void SentMailbox::save_mail(const std::string& _header, const std::string _content, uint64_t _time) {
     std::lock_guard<std::shared_mutex> glock(sent_mailbox_mut);
-    sent_mailbox.emplace_back<sent_mail>({_header, _content});
+    sent_mailbox.emplace_back<sent_mail>({_header, _content, _time});
 }
 
 void SentMailbox::delete_mail(uint16_t _position) {
@@ -69,9 +69,9 @@ ReceivedMailbox* ReceivedMailbox::getInstance() {
     return &__instance;
 }
 
-void ReceivedMailbox::save_mail(const std::string& _header, const std::string _content) {
+void ReceivedMailbox::save_mail(const std::string& _header, const std::string _content, uint64_t _time) {
     std::lock_guard<std::shared_mutex> glock(rcv_mailbox_mut);
-    received_mailbox.emplace_back<received_mail>({_header, _content});
+    received_mailbox.emplace_back<received_mail>({_header, _content, _time});
 }
 
 void ReceivedMailbox::delete_mail(uint16_t _position) {

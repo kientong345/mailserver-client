@@ -14,7 +14,7 @@ protected:
     std::shared_mutex rcv_mailbox_mut;
 
 public:
-    virtual void save_mail(const std::string& _header, const std::string _content) = 0;
+    virtual void save_mail(const std::string& _header, const std::string _content, uint64_t _time) = 0;
     virtual void delete_mail(uint16_t _position) = 0;
     virtual const void* get_mail(uint16_t _position) = 0;
     virtual uint16_t number_of_mail() = 0;
@@ -30,7 +30,7 @@ private:
 public:
     static SentMailbox* getInstance();
 
-    void save_mail(const std::string& _header, const std::string _content) override;
+    void save_mail(const std::string& _header, const std::string _content, uint64_t _time) override;
     void delete_mail(uint16_t _position) override;
     const sent_mail* get_mail(uint16_t _position) override;
     uint16_t number_of_mail() override;
@@ -46,7 +46,7 @@ private:
 public:
     static ReceivedMailbox* getInstance();
 
-    void save_mail(const std::string& _header, const std::string _content) override;
+    void save_mail(const std::string& _header, const std::string _content, uint64_t _time) override;
     void delete_mail(uint16_t _position) override;
     const received_mail* get_mail(uint16_t _position) override;
     uint16_t number_of_mail() override;

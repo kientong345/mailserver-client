@@ -4,8 +4,6 @@
     client_graphic.cpp
     client_mailbox.h
     client_mailbox.cpp
-    client_manager.h
-    client_manager.cpp
     client_transport.h
     client_transport.cpp
     client_ultility.h

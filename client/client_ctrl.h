@@ -26,6 +26,7 @@ public:
 
     void client_init();
     void client_main();
+    void client_end();
 
     class State;
     class ClientManager;
@@ -60,7 +61,18 @@ public:
             }
         }
     };
-
+    /* form of a screen
+    ---------------------------------------
+    |             Select Menu             |
+    |                                     |
+    |              option 1               |
+    |              option 2               |
+    |            > option 3               |
+    |              option 4               |
+    |                                     |
+    | < back                       next > |
+    ---------------------------------------
+    */
     /* nested class ClientManager */
     class ClientManager {
     private:
@@ -84,6 +96,7 @@ public:
             default:
                 break;
             }
+            if (_state != STATE_NOCHANGE) current_state->show();
         }
         void back() {
             STATE_TYPE next_state = current_state->back();
@@ -180,10 +193,6 @@ public:
         STATE_TYPE execute_specific_request(const req_t& _request) override {
             REQ_TYPE req_type = _request.first;
             switch (req_type) {
-            case REQ_BACK:
-                return back();
-            case REQ_NEXT:
-                return next();
             case REQ_UP:
                 return up();
             case REQ_DOWN:
@@ -205,7 +214,7 @@ public:
     |   >  password: *********            |
     |                                     |
     |               submit                |
-    |           i had an account          |
+    |          i had an account           |
     | < back                       next > |
     ---------------------------------------
     */
@@ -266,10 +275,6 @@ public:
         STATE_TYPE execute_specific_request(const req_t& _request) override {
             REQ_TYPE req_type = _request.first;
             switch (req_type) {
-            case REQ_BACK:
-                return back();
-            case REQ_NEXT:
-                return next();
             case REQ_UP:
                 return up();
             case REQ_DOWN:
@@ -287,23 +292,85 @@ public:
     ---------------------------------------
     |             Select Menu             |
     |                                     |
-    |              option 1               |
-    |              option 2               |
-    |            > option 3               |
-    |              option 4               |
-    |                                     |
-    | < back                       next > |
+    |             friendlist              |
+    |              setting                |
+    |          > instructions             |
+    |                info                 |
+    |                exit                 |
+    | < logout                     next > |
     ---------------------------------------
     */
     class Menu_State : public State {
     private:
         enum class MENU_OPTION {
-            
+            FRIENDLIST,
+            SETTING,
+            INSTRUCTIONS,
+            INFO,
+            EXIT
         };
         MENU_OPTION _current_option;
     public:
         Menu_State(Client_Ctrl* _target) : State(_target) {}
         ~Menu_State() = default;
+        void show() override {
+
+        }
+        STATE_TYPE back() override {
+            _client->_transporter->send_request(LOGOUT);
+            return STATE_LOGIN;
+        }
+        STATE_TYPE next() override {
+            return STATE_NOCHANGE;
+        }
+        STATE_TYPE up() override {
+            if (_current_option == MENU_OPTION::FRIENDLIST) _current_option = MENU_OPTION::EXIT;
+            else _current_option = static_cast<MENU_OPTION>(static_cast<uint8_t>(_current_option)-1);
+            return STATE_NOCHANGE;
+        }
+        STATE_TYPE down() override {
+            if (_current_option == MENU_OPTION::EXIT) _current_option = MENU_OPTION::FRIENDLIST;
+            else _current_option = static_cast<MENU_OPTION>(static_cast<uint8_t>(_current_option)+1);
+            return STATE_NOCHANGE;
+        }
+        STATE_TYPE select() override {
+            switch (_current_option) {
+            case MENU_OPTION::FRIENDLIST:
+                return STATE_FRIENDLIST;
+            case MENU_OPTION::SETTING:
+                return STATE_SETTING;
+            case MENU_OPTION::INSTRUCTIONS:
+                return STATE_INSTRUCTIONS;
+            case MENU_OPTION::INFO:
+                return STATE_INFO;
+            case MENU_OPTION::EXIT:
+                _client->_transporter->send_request(TERMINATE);
+                _client->client_end();
+            default:
+                return STATE_NOCHANGE;
+            }
+        }
+        STATE_TYPE execute_specific_request(const req_t& _request) override {
+            REQ_TYPE req_type = _request.first;
+            switch (req_type) {
+            case REQ_LOGOUT:
+                return back();
+            case REQ_UP:
+                return up();
+            case REQ_DOWN:
+                return down();
+            case REQ_SELECT:
+                return select();
+            default:
+                return STATE_NOCHANGE;
+            }
+        }
+
+    };
+
+    class FriendList_State :public State {
+        FriendList_State(Client_Ctrl* _target) : State(_target) {}
+        ~FriendList_State() = default;
         void show() override {
 
         }
@@ -325,7 +392,84 @@ public:
         STATE_TYPE execute_specific_request(const req_t& _request) override {
 
         }
+    };
 
+    class Setting_State :public State {
+        Setting_State(Client_Ctrl* _target) : State(_target) {}
+        ~Setting_State() = default;
+        void show() override {
+
+        }
+        STATE_TYPE back() override {
+
+        }
+        STATE_TYPE next() override {
+
+        }
+        STATE_TYPE up() override {
+
+        }
+        STATE_TYPE down() override {
+
+        }
+        STATE_TYPE select() override {
+
+        }
+        STATE_TYPE execute_specific_request(const req_t& _request) override {
+
+        }
+    };
+
+    class Instructions_State :public State {
+        Instructions_State(Client_Ctrl* _target) : State(_target) {}
+        ~Instructions_State() = default;
+        void show() override {
+
+        }
+        STATE_TYPE back() override {
+
+        }
+        STATE_TYPE next() override {
+
+        }
+        STATE_TYPE up() override {
+
+        }
+        STATE_TYPE down() override {
+
+        }
+        STATE_TYPE select() override {
+
+        }
+        STATE_TYPE execute_specific_request(const req_t& _request) override {
+
+        }
+    };
+
+    class Info_State :public State {
+        Info_State(Client_Ctrl* _target) : State(_target) {}
+        ~Info_State() = default;
+        void show() override {
+
+        }
+        STATE_TYPE back() override {
+
+        }
+        STATE_TYPE next() override {
+
+        }
+        STATE_TYPE up() override {
+
+        }
+        STATE_TYPE down() override {
+
+        }
+        STATE_TYPE select() override {
+
+        }
+        STATE_TYPE execute_specific_request(const req_t& _request) override {
+
+        }
     };
 
 };

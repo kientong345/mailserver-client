@@ -18,6 +18,7 @@
 
 #define LOGIN                          "login"
 #define REGISTER                       "register"
+#define LOGOUT                         "logout"
 #define SENDTO                         "sendto"
 #define DELETEMAIL                     "deletemail"
 #define CHANGENAME                     "changename"
@@ -33,6 +34,7 @@ typedef enum {
     REQ_UNIDENTIFY,
     REQ_LOGIN,
     REQ_REGISTER,
+    REQ_LOGOUT,
     REQ_SENDTO,        /* connect to ... */
     REQ_DELETEMAIL,    /* delete a mail in mailbox */
     REQ_CHANGENAME,    /* change client name in client table */

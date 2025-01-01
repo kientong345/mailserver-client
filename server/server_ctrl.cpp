@@ -106,6 +106,10 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
             return E_REGISTER_FAILED;
         }
     }
+    else if (req_type == REQ_LOGOUT) {
+        return E_TERM;
+        // verify_account();
+    }
     else if (req_type == REQ_SENDTO) {
         // sorry for garbage code!
         auto content = static_cast<std::tuple<std::string, std::string, std::string>*>(_request.second.get());

@@ -31,6 +31,10 @@ req_t parseRequest(const std::string& _message) {
         req.first = REQ_REGISTER;
         req.second = std::make_shared<std::pair<std::string, std::string>>(getWord(_message, 2), getWord(_message, 3));
     }
+    else if (req_type == LOGOUT) {
+        req.first = REQ_LOGOUT;
+        req.second = nullptr;
+    }
     else if (req_type == SENDTO) {
         req.first = REQ_SENDTO;
         req.second = std::make_shared<std::tuple<std::string, std::string, uint64_t>>(getWord(_message, 2), getWord(_message, 3), std::stoull(getWord(_message, 4)));

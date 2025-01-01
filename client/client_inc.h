@@ -23,6 +23,10 @@
 #define __LOGIN_STATE__         (std::make_shared<Login_State>(_client))
 #define __REGISTER_STATE__      (std::make_shared<Register_State>(_client))
 #define __MENU_STATE__          (std::make_shared<Menu_State>(_client))
+#define __FRIENDLIST_STATE__    (std::make_shared<FriendList_State>(_client))
+#define __SETTING_STATE__       (std::make_shared<Setting_State>(_client))
+#define __INSTRUCTIONS_STATE__  (std::make_shared<Instructions_State>(_client))
+#define __INFO_STATE__          (std::make_shared<Info_State>(_client))
 
 #define __CURRENT_TIME__        (std::string(std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count()))
 
@@ -33,6 +37,7 @@
 
 #define LOGIN                   "login"
 #define REGISTER                "register"
+#define LOGOUT                  "logout"
 #define SENDTO                  "sendto"
 #define DELETEMAIL              "deletemail"
 #define CHANGENAME              "changename"
@@ -54,6 +59,7 @@ typedef enum {
     /* server request */
     REQ_LOGIN,
     REQ_REGISTER,
+    REQ_LOGOUT,
     REQ_SENDTO,
     REQ_DELETEMAIL,
     REQ_CHANGENAME,
@@ -76,7 +82,12 @@ typedef enum {
     STATE_NOCHANGE,
     STATE_LOGIN,
     STATE_REGISTATION,
-    STATE_MENU
+    STATE_MENU,
+    STATE_FRIENDLIST,
+    STATE_SETTING,
+    STATE_INSTRUCTIONS,
+    STATE_INFO,
+    STATE_EXIT
 } STATE_TYPE;
 
 typedef enum {

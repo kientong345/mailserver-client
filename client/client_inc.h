@@ -105,6 +105,12 @@ typedef struct {
     uint64_t rcv_time;
 } received_mail;
 
+typedef struct {
+    std::string chat_owner;
+    std::string chat_content;
+    uint64_t chat_time;
+} chat_line;
+
 typedef std::pair<REQ_TYPE, std::shared_ptr<void>>      req_t;
 
 #endif /* __CLIENT_INC_H__ */

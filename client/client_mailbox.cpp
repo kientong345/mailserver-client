@@ -1,9 +1,28 @@
 #include "client_mailbox.h"
 #include <iostream>
+#include <algorithm>
 
-std::vector<std::pair<std::string, std::string>> Mailbox::get_conversation(const std::string& user1, const std::string& user2) const {
-    std::vector<std::pair<std::string, std::string>> chat_history;
-    chat_history.emplace_back();
+/**
+ * @brief get the chat history between 2 users
+ * @param user1: current user who call this function
+ * @param user2: the user who is chatting with user1
+ * @return a vector contain chat history between 2 user, sorting by sent/rcv time
+ */
+std::vector<chat_line> Mailbox::get_conversation(const std::string& user1, const std::string& user2) const {
+    std::vector<chat_line> chat_history;
+    for (const auto& _mail : sent_mailbox) {
+        if (_mail.receiver == user2) {
+            chat_history.emplace_back(_mail.receiver, _mail.content, _mail.sent_time);
+        }
+    }
+    for (const auto& _mail : received_mailbox) {
+        if (_mail.sender == user1) {
+            chat_history.emplace_back(_mail.sender, _mail.content, _mail.rcv_time);
+        }
+    }
+    std::stable_sort(chat_history.begin(), chat_history.end(), [](const chat_line& line1, const chat_line& line2){
+        return line1.chat_time < line2.chat_time;
+    });
 
     return chat_history;
 }

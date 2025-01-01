@@ -18,8 +18,7 @@ public:
     virtual void delete_mail(uint16_t _position) = 0;
     virtual const void* get_mail(uint16_t _position) = 0;
     virtual uint16_t number_of_mail() = 0;
-
-    std::vector<std::pair<std::string, std::string>> get_conversation(const std::string& user1, const std::string& user2) const;
+    std::vector<chat_line> get_conversation(const std::string& user1, const std::string& user2) const;
 
 };
 

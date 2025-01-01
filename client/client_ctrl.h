@@ -30,6 +30,14 @@ public:
 
     class State;
     class ClientManager;
+    class Login_State;
+    class Register_State;
+    class Menu_State;
+    class FriendList_State;
+    class Setting_State;
+    class Instructions_State;
+    class Info_State;
+    class Chat_State;
 
     /* nested class State */
     class State {
@@ -40,8 +48,8 @@ public:
         State(Client_Ctrl* _target) : _client(_target) {}
         virtual ~State() = default;
         virtual void show() = 0;
-        virtual STATE_TYPE back() = 0;
-        virtual STATE_TYPE next() = 0;
+        virtual STATE_TYPE left() = 0;
+        virtual STATE_TYPE right() = 0;
         virtual STATE_TYPE up() = 0;
         virtual STATE_TYPE down() = 0;
         virtual STATE_TYPE select() = 0;
@@ -92,18 +100,34 @@ public:
             case STATE_MENU:
                 current_state = __MENU_STATE__;
                 break;
+            case STATE_FRIENDLIST:
+                current_state = __FRIENDLIST_STATE__;
+                break;
+            case STATE_SETTING:
+                current_state = __SETTING_STATE__;
+                break;
+            case STATE_INSTRUCTIONS:
+                current_state = __INSTRUCTIONS_STATE__;
+                break;
+            case STATE_INFO:
+                current_state = __INFO_STATE__;
+                break;
+            case STATE_CHAT:
+                current_state = __CHAT_STATE__;
+                break;
+            case STATE_EXIT:
             case STATE_NOCHANGE:
             default:
                 break;
             }
             if (_state != STATE_NOCHANGE) current_state->show();
         }
-        void back() {
-            STATE_TYPE next_state = current_state->back();
+        void left() {
+            STATE_TYPE next_state = current_state->left();
             set_state(next_state);
         }
-        void next() {
-            STATE_TYPE next_state = current_state->next();
+        void right() {
+            STATE_TYPE next_state = current_state->right();
             set_state(next_state);
         }
         void up() {
@@ -153,10 +177,10 @@ public:
         void show() override {
 
         }
-        STATE_TYPE back() override {
+        STATE_TYPE left() override {
             return STATE_NOCHANGE;
         }
-        STATE_TYPE next() override {
+        STATE_TYPE right() override {
             return STATE_NOCHANGE;
         }
         STATE_TYPE up() override {
@@ -235,10 +259,10 @@ public:
         void show() override {
 
         }
-        STATE_TYPE back() override {
+        STATE_TYPE left() override {
             return STATE_NOCHANGE;
         }
-        STATE_TYPE next() override {
+        STATE_TYPE right() override {
             return STATE_NOCHANGE;
         }
         STATE_TYPE up() override {
@@ -311,16 +335,16 @@ public:
         };
         MENU_OPTION _current_option;
     public:
-        Menu_State(Client_Ctrl* _target) : State(_target) {}
+        Menu_State(Client_Ctrl* _target) : State(_target), _current_option(MENU_OPTION::FRIENDLIST) {}
         ~Menu_State() = default;
         void show() override {
 
         }
-        STATE_TYPE back() override {
+        STATE_TYPE left() override {
             _client->_transporter->send_request(LOGOUT);
             return STATE_LOGIN;
         }
-        STATE_TYPE next() override {
+        STATE_TYPE right() override {
             return STATE_NOCHANGE;
         }
         STATE_TYPE up() override {
@@ -354,7 +378,7 @@ public:
             REQ_TYPE req_type = _request.first;
             switch (req_type) {
             case REQ_LOGOUT:
-                return back();
+                return left();
             case REQ_UP:
                 return up();
             case REQ_DOWN:
@@ -368,42 +392,86 @@ public:
 
     };
 
+    /*
+    ---------------------------------------
+    |             Friendlist              |
+    |                 /\                  |
+    |   5. abcd                           |
+    |   6. piggy                          |
+    | > 7. liu bei                        |
+    |   8. adolf                          |
+    |                 \/                  |
+    | < back                       next > |
+    ---------------------------------------
+    */
     class FriendList_State :public State {
-        FriendList_State(Client_Ctrl* _target) : State(_target) {}
+    private:
+        uint16_t _current_option;
+        uint16_t _friend_num;
+    public:
+        FriendList_State(Client_Ctrl* _target) : State(_target), _current_option(0), _friend_num(0) {
+            // update _current_option and _friend_num
+        }
         ~FriendList_State() = default;
         void show() override {
 
         }
-        STATE_TYPE back() override {
-
+        STATE_TYPE left() override {
+            return STATE_MENU;
         }
-        STATE_TYPE next() override {
-
+        STATE_TYPE right() override {
+            /* may do some actions:
+            add friend,
+            delete friend,
+            search friend,
+            mark a friend,
+            show info of a friend (ip or smt?)
+            reload the page?
+            */
+            return STATE_NOCHANGE;
         }
         STATE_TYPE up() override {
-
+            if (_friend_num > 0) {
+                _current_option = (_current_option > 1) ? _current_option-1 : _friend_num;
+            }
+            return STATE_NOCHANGE;
         }
         STATE_TYPE down() override {
-
+            if (_friend_num > 0) {
+                _current_option = (_current_option < _friend_num) ? _current_option+1 : 1;
+            }
+            return STATE_NOCHANGE;
         }
         STATE_TYPE select() override {
-
+            return STATE_CHAT;
         }
         STATE_TYPE execute_specific_request(const req_t& _request) override {
 
         }
     };
 
+    /*
+    ---------------------------------------
+    |               Setting               |
+    |                                     |
+    |             change info             |
+    |             change pass             |
+    |             > manage                |
+    |                                     |
+    |                                     |
+    | < back                       next > |
+    ---------------------------------------
+    */
     class Setting_State :public State {
         Setting_State(Client_Ctrl* _target) : State(_target) {}
         ~Setting_State() = default;
         void show() override {
 
         }
-        STATE_TYPE back() override {
+        STATE_TYPE left() override {
 
         }
-        STATE_TYPE next() override {
+        STATE_TYPE right() override {
 
         }
         STATE_TYPE up() override {
@@ -426,10 +494,10 @@ public:
         void show() override {
 
         }
-        STATE_TYPE back() override {
+        STATE_TYPE left() override {
 
         }
-        STATE_TYPE next() override {
+        STATE_TYPE right() override {
 
         }
         STATE_TYPE up() override {
@@ -452,11 +520,57 @@ public:
         void show() override {
 
         }
-        STATE_TYPE back() override {
+        STATE_TYPE left() override {
 
         }
-        STATE_TYPE next() override {
+        STATE_TYPE right() override {
 
+        }
+        STATE_TYPE up() override {
+
+        }
+        STATE_TYPE down() override {
+
+        }
+        STATE_TYPE select() override {
+
+        }
+        STATE_TYPE execute_specific_request(const req_t& _request) override {
+
+        }
+    };
+
+    /*
+    ---------------------------------------
+    |              Chat box               |
+    | 24/7/2004-16:24:32                  |
+    | @johnwick01: are you killed my dog? |
+    | 24/7/2004-16:26:14                  |
+    | @dogslayer: no what?                |
+    | 24/7/2004-16:26:40                  |
+    | @johnwick01: cuz ur name look sus af|
+    | < back [@: fk u            ] send > |
+    ---------------------------------------
+    */
+    class Chat_State :public State {
+    private:
+        std::string _friendname;
+        std::string _message;
+    public:
+        Chat_State(Client_Ctrl* _target) : State(_target) {}
+        ~Chat_State() = default;
+        void show() override {
+
+        }
+        STATE_TYPE left() override {
+            return STATE_FRIENDLIST;
+        }
+        STATE_TYPE right() override {
+            if (_message != "") {
+                _client->_transporter->send_request(SENDTO " " + _friendname + " " + _message + __CURRENT_TIME__);
+                _message = "";
+            }
+            return STATE_NOCHANGE;
         }
         STATE_TYPE up() override {
 

@@ -27,8 +27,9 @@
 #define __SETTING_STATE__       (std::make_shared<Setting_State>(_client))
 #define __INSTRUCTIONS_STATE__  (std::make_shared<Instructions_State>(_client))
 #define __INFO_STATE__          (std::make_shared<Info_State>(_client))
+#define __CHAT_STATE__          (std::make_shared<Chat_State>(_client))
 
-#define __CURRENT_TIME__        (std::string(std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count()))
+#define __CURRENT_TIME__        (std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()))
 
 #define LOGIN_SUCCEED           (std::string("login succeed"))
 #define LOGIN_FAILED            (std::string("login failed"))
@@ -47,8 +48,8 @@
 #define CHANGEPASSWORD          "changepassword"
 #define TOSERVER                "toserver"
 #define SHOWCHAT                "showchat"
-#define INPUT_BACK              "back"
-#define INPUT_NEXT              "next"
+#define INPUT_LEFT              "left"
+#define INPUT_RIGHT             "right"
 #define INPUT_UP                "up"
 #define INPUT_DOWN              "down"
 #define INPUT_SELECT            "select"
@@ -70,8 +71,8 @@ typedef enum {
     REQ_TOSERVER,
     /* client request */
     REQ_SHOWCHAT,
-    REQ_BACK,
-    REQ_NEXT,
+    REQ_LEFT,
+    REQ_RIGHT,
     REQ_UP,
     REQ_DOWN,
     REQ_SELECT,
@@ -87,12 +88,13 @@ typedef enum {
     STATE_SETTING,
     STATE_INSTRUCTIONS,
     STATE_INFO,
+    STATE_CHAT,
     STATE_EXIT
 } STATE_TYPE;
 
 typedef enum {
-    I_BACK,
-    I_NEXT,
+    I_LEFT,
+    I_RIGHT,
     I_UP,
     I_DOWN,
     I_SELECT,

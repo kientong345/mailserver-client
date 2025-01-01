@@ -51,11 +51,11 @@ void Client_Ctrl::ui_handler() {
     ClientManager _manager(this);
     INPUT_TYPE _input = get_user_input();
     switch (_input) {
-    case I_BACK:
-        _manager.back();
+    case I_LEFT:
+        _manager.left();
         break;
-    case I_NEXT:
-        _manager.next();
+    case I_RIGHT:
+        _manager.right();
         break;
     case I_UP:
         _manager.up();

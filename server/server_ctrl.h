@@ -7,7 +7,8 @@
 
 class Server_Ctrl {
 private:
-    Database* _database;
+    Database* _soft_database;
+    Database* _hard_database;
     Transporter* _transporter;
 
     std::string _client_name; // i am serving this guy!

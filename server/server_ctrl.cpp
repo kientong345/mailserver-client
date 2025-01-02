@@ -8,7 +8,8 @@
 
 Server_Ctrl::Server_Ctrl()
 : _transporter(nullptr),
-  _database(nullptr),
+  _soft_database(nullptr),
+  _hard_database(nullptr),
   is_serving(false) {
 
 }
@@ -19,10 +20,11 @@ Server_Ctrl::~Server_Ctrl() {
 
 void Server_Ctrl::server_init() {
     _transporter = Transporter::getInstance();
-    _database = Database::getInstance();
+    _soft_database = Soft_Database::getInstance();
+    _hard_database = Hard_Database::getInstance();
 
     _transporter->init();
-    _database->load_client_table();
+    _soft_database->load_client_table();
 }
 
 void Server_Ctrl::server_main() {
@@ -81,9 +83,9 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     REQ_TYPE req_type = _request.first;
     if (req_type == REQ_LOGIN) {
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        if (*(_database->get_client_password(content->first)) == content->second) {
+        if (*(_soft_database->get_client_password(content->first)) == content->second) {
             _client_name = content->first;
-            _database->update_client_address(_client_name, _client_addr);
+            _soft_database->update_client_address(_client_name, _client_addr);
             _transporter->response("login_succeed");
             return E_LOGIN_SUCCEED;
         }
@@ -94,10 +96,10 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     }
     else if (req_type == REQ_REGISTER) {
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        if (!(_database->client_name_exist(content->first))) {
+        if (!(_soft_database->client_name_exist(content->first))) {
             _client_name = content->first;
             std::string _client_password = content->second;
-            _database->save_client_info(_client_name, _client_password, _client_addr);
+            _soft_database->save_client_info(_client_name, _client_password, _client_addr);
             _transporter->response("register_succeed");
             return E_REGISTER_SUCCEED;
         }
@@ -114,26 +116,26 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         // sorry for garbage code!
         auto content = static_cast<std::tuple<std::string, std::string, std::string>*>(_request.second.get());
         _transporter->send_to_mailbox(std::get<0>(*content), "[" + _client_name + "]" + std::get<1>(*content));
-        _database->save_sent_mail(_client_name, std::get<0>(*content), std::get<1>(*content), std::get<2>(*content));
-        _database->save_received_mail(std::get<0>(*content), _client_name, std::get<1>(*content), std::get<2>(*content));
+        _soft_database->save_sent_mail(_client_name, std::get<0>(*content), std::get<1>(*content), std::get<2>(*content));
+        _soft_database->save_received_mail(std::get<0>(*content), _client_name, std::get<1>(*content), std::get<2>(*content));
     }
     else if (req_type == REQ_DELETEMAIL) {
         auto content = static_cast<std::pair<std::string, uint16_t>*>(_request.second.get());
         if (content->first == SENT_MAILBOX) {
-            _database->delete_sent_mail(_client_name, content->second);
+            _soft_database->delete_sent_mail(_client_name, content->second);
         }
         else if (content->first == RCV_MAILBOX) {
-            _database->delete_received_mail(_client_name, content->second);
+            _soft_database->delete_received_mail(_client_name, content->second);
         }
         else _transporter->response("[server]wrong mailbox type");
     }
     else if (req_type == REQ_CHANGENAME) {
         std::string new_name = *(static_cast<std::string*>(_request.second.get()));
-        if (_database->client_name_exist(new_name)) {
+        if (_soft_database->client_name_exist(new_name)) {
             _transporter->response("[server]that name has already existed");
         }
         else {
-            _database->update_client_name(_client_name, new_name);
+            _soft_database->update_client_name(_client_name, new_name);
             /* sadly, each mailbox is binded to a name, so... */
             _transporter->close_mailbox();
             _transporter->open_mailbox(new_name);
@@ -144,7 +146,7 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         std::string msg_back = "[server]";
         std::string target_name = *(static_cast<std::string*>(_request.second.get()));
         if (target_name == "") {
-            for (auto& user : *(_database->get_client_table())) {
+            for (auto& user : *(_soft_database->get_client_table())) {
                 msg_back += "user name: ";
                 msg_back += user.first; msg_back += " - ";
                 msg_back += "ip address: ";
@@ -154,16 +156,16 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
             }
         }
         else {
-            if (!_database->client_name_exist(target_name)) {
+            if (!_soft_database->client_name_exist(target_name)) {
                 msg_back += "client not found";
             }
             else {
                 msg_back += "user name: ";
                 msg_back += target_name; msg_back += " - ";
                 msg_back += "ip address: ";
-                msg_back += inet_ntoa(_database->get_client_addr(target_name)->sin_addr); msg_back += " - ";
+                msg_back += inet_ntoa(_soft_database->get_client_addr(target_name)->sin_addr); msg_back += " - ";
                 msg_back += "port: ";
-                msg_back += std::to_string(ntohs(_database->get_client_addr(target_name)->sin_port)); msg_back += "\n";
+                msg_back += std::to_string(ntohs(_soft_database->get_client_addr(target_name)->sin_port)); msg_back += "\n";
             }
         }
         _transporter->response(msg_back);
@@ -177,7 +179,7 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     }
     else if (req_type == REQ_CHANGEPASSWORD) {
         std::string new_pass = *(static_cast<std::string*>(_request.second.get()));
-        _database->update_client_password(_client_name, new_pass);
+        _soft_database->update_client_password(_client_name, new_pass);
     }
     else { // req_type == REQ_UNIDENTIFY
         std::string this_req = *(static_cast<std::string*>(_request.second.get()));

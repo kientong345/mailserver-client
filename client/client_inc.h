@@ -20,14 +20,14 @@
 #define CLIENT_PORT             7007
 //#define __CUSTOM_ADDRESS__
 
-#define __LOGIN_STATE__         (std::make_shared<Login_State>(_client))
-#define __REGISTER_STATE__      (std::make_shared<Register_State>(_client))
-#define __MENU_STATE__          (std::make_shared<Menu_State>(_client))
-#define __FRIENDLIST_STATE__    (std::make_shared<FriendList_State>(_client))
-#define __SETTING_STATE__       (std::make_shared<Setting_State>(_client))
-#define __INSTRUCTIONS_STATE__  (std::make_shared<Instructions_State>(_client))
-#define __INFO_STATE__          (std::make_shared<Info_State>(_client))
-#define __CHAT_STATE__          (std::make_shared<Chat_State>(_client))
+#define __LOGIN_STATE__         (std::make_shared<Client_Ctrl::Login_State>(_client))
+#define __REGISTER_STATE__      (std::make_shared<Client_Ctrl::Register_State>(_client))
+#define __MENU_STATE__          (std::make_shared<Client_Ctrl::Menu_State>(_client))
+#define __FRIENDLIST_STATE__    (std::make_shared<Client_Ctrl::FriendList_State>(_client))
+#define __SETTING_STATE__       (std::make_shared<Client_Ctrl::Setting_State>(_client))
+#define __INSTRUCTIONS_STATE__  (std::make_shared<Client_Ctrl::Instructions_State>(_client))
+#define __INFO_STATE__          (std::make_shared<Client_Ctrl::Info_State>(_client))
+#define __CHAT_STATE__          (std::make_shared<Client_Ctrl::Chat_State>(_client))
 
 #define __CURRENT_TIME__        (std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()))
 

@@ -144,3 +144,454 @@ int main() {
 
     return 0;
 }
+
+Client_Ctrl::State::State(Client_Ctrl* _target)
+: _client(_target) {
+
+}
+
+STATE_TYPE Client_Ctrl::State::execute_request(const req_t& _request) {
+    REQ_TYPE req_type = _request.first;
+    if (req_type == REQ_TOSERVER) {
+        std::string _message = *(static_cast<std::string*>(_request.second.get()));
+        _client->_transporter->send_request(_message);
+        return STATE_NOCHANGE;
+    }
+    else if (req_type == REQ_SHOWCHAT) {
+        // ???
+        return STATE_NOCHANGE;
+    }
+    else {
+        return execute_specific_request(_request);
+    }
+}
+
+Client_Ctrl::Login_State::Login_State(Client_Ctrl* _target)
+: State(_target), _current_option(LOGIN_OPTION::USER_NAME) {
+
+}
+void Client_Ctrl::Login_State::show() {
+
+}
+
+STATE_TYPE Client_Ctrl::Login_State::left() {
+    return STATE_NOCHANGE;
+}
+
+STATE_TYPE Client_Ctrl::Login_State::right() {
+    return STATE_NOCHANGE;
+}
+
+STATE_TYPE Client_Ctrl::Login_State::up() {
+    if (_current_option == LOGIN_OPTION::USER_NAME) _current_option = LOGIN_OPTION::CREATE_NEW_ACCOUNT;
+    else _current_option = static_cast<LOGIN_OPTION>(static_cast<uint8_t>(_current_option)-1);
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::Login_State::down() {
+    if (_current_option == LOGIN_OPTION::CREATE_NEW_ACCOUNT) _current_option = LOGIN_OPTION::USER_NAME;
+    else _current_option = static_cast<LOGIN_OPTION>(static_cast<uint8_t>(_current_option)+1);
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::Login_State::select() {
+    std::string res;
+    switch (_current_option) {
+    case LOGIN_OPTION::USER_NAME:
+        // move edit position to usrname region
+        // wait user to input usrname
+        return STATE_NOCHANGE;
+    case LOGIN_OPTION::PASSWORD:
+        // move edit position to pass region
+        // wait user to input pass
+        return STATE_NOCHANGE;
+    case LOGIN_OPTION::SUBMIT:
+        _client->_transporter->send_request(LOGIN " " + _user_name + " " + _password);
+        res = _client->_transporter->receive_response();
+        return (res == LOGIN_SUCCEED) ? STATE_MENU : STATE_NOCHANGE;
+    case LOGIN_OPTION::CREATE_NEW_ACCOUNT:
+        return STATE_REGISTATION;
+    default:
+        return STATE_NOCHANGE;
+    }
+}
+STATE_TYPE Client_Ctrl::Login_State::execute_specific_request(const req_t& _request) {
+    REQ_TYPE req_type = _request.first;
+    switch (req_type) {
+    case REQ_UP:
+        return up();
+    case REQ_DOWN:
+        return down();
+    case REQ_SELECT:
+        return select();
+    default:
+        return STATE_NOCHANGE;
+    }
+}
+
+Client_Ctrl::Register_State::Register_State(Client_Ctrl* _target)
+: State(_target), _current_option(REGISTER_OPTION::USER_NAME) {
+
+}
+
+void Client_Ctrl::Register_State::show() {
+
+}
+
+STATE_TYPE Client_Ctrl::Register_State::left() {
+    return STATE_NOCHANGE;
+}
+
+STATE_TYPE Client_Ctrl::Register_State::right() {
+    return STATE_NOCHANGE;
+}
+
+STATE_TYPE Client_Ctrl::Register_State::up() {
+    if (_current_option == REGISTER_OPTION::USER_NAME) _current_option = REGISTER_OPTION::HAD_ACCOUNT;
+    else _current_option = static_cast<REGISTER_OPTION>(static_cast<uint8_t>(_current_option)-1);
+    return STATE_NOCHANGE;
+}
+
+STATE_TYPE Client_Ctrl::Register_State::down() {
+    if (_current_option == REGISTER_OPTION::HAD_ACCOUNT) _current_option = REGISTER_OPTION::USER_NAME;
+    else _current_option = static_cast<REGISTER_OPTION>(static_cast<uint8_t>(_current_option)+1);
+    return STATE_NOCHANGE;
+}
+
+STATE_TYPE Client_Ctrl::Register_State::select() {
+    std::string res;
+    switch (_current_option) {
+    case REGISTER_OPTION::USER_NAME:
+        // move edit position to usrname region
+        // wait user to input usrname
+        return STATE_NOCHANGE;
+    case REGISTER_OPTION::PASSWORD:
+        // move edit position to pass region
+        // wait user to input pass
+        return STATE_NOCHANGE;
+    case REGISTER_OPTION::SUBMIT:
+        _client->_transporter->send_request(REGISTER " " + _user_name + " " + _password);
+        res = _client->_transporter->receive_response();
+        return (res == REGISTER_SUCCEED) ? STATE_MENU : STATE_NOCHANGE;
+    case REGISTER_OPTION::HAD_ACCOUNT:
+        return STATE_LOGIN;
+    default:
+        return STATE_NOCHANGE;
+    }
+}
+
+STATE_TYPE Client_Ctrl::Register_State::execute_specific_request(const req_t& _request) {
+    REQ_TYPE req_type = _request.first;
+    switch (req_type) {
+    case REQ_UP:
+        return up();
+    case REQ_DOWN:
+        return down();
+    case REQ_SELECT:
+        return select();
+    default:
+        return STATE_NOCHANGE;
+    }
+}
+
+Client_Ctrl::Menu_State::Menu_State(Client_Ctrl* _target)
+: State(_target), _current_option(MENU_OPTION::FRIENDLIST) {
+
+}
+
+void Client_Ctrl::Menu_State::show() {
+
+}
+STATE_TYPE Client_Ctrl::Menu_State::left() {
+    _client->_transporter->send_request(LOGOUT);
+    return STATE_LOGIN;
+}
+STATE_TYPE Client_Ctrl::Menu_State::right() {
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::Menu_State::up() {
+    if (_current_option == MENU_OPTION::FRIENDLIST) _current_option = MENU_OPTION::EXIT;
+    else _current_option = static_cast<MENU_OPTION>(static_cast<uint8_t>(_current_option)-1);
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::Menu_State::down() {
+    if (_current_option == MENU_OPTION::EXIT) _current_option = MENU_OPTION::FRIENDLIST;
+    else _current_option = static_cast<MENU_OPTION>(static_cast<uint8_t>(_current_option)+1);
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::Menu_State::select() {
+    switch (_current_option) {
+    case MENU_OPTION::FRIENDLIST:
+        return STATE_FRIENDLIST;
+    case MENU_OPTION::SETTING:
+        return STATE_SETTING;
+    case MENU_OPTION::INSTRUCTIONS:
+        return STATE_INSTRUCTIONS;
+    case MENU_OPTION::INFO:
+        return STATE_INFO;
+    case MENU_OPTION::EXIT:
+        _client->_transporter->send_request(TERMINATE);
+        _client->client_end();
+    default:
+        return STATE_NOCHANGE;
+    }
+}
+STATE_TYPE Client_Ctrl::Menu_State::execute_specific_request(const req_t& _request) {
+    REQ_TYPE req_type = _request.first;
+    switch (req_type) {
+    case REQ_LOGOUT:
+        return left();
+    case REQ_UP:
+        return up();
+    case REQ_DOWN:
+        return down();
+    case REQ_SELECT:
+        return select();
+    default:
+        return STATE_NOCHANGE;
+    }
+}
+
+Client_Ctrl::FriendList_State::FriendList_State(Client_Ctrl* _target)
+: State(_target), _current_option(0), _friend_num(0) {
+    // update _current_option and _friend_num
+}
+
+void Client_Ctrl::FriendList_State::show() {
+
+}
+STATE_TYPE Client_Ctrl::FriendList_State::left() {
+    return STATE_MENU;
+}
+STATE_TYPE Client_Ctrl::FriendList_State::right() {
+    /* may do some actions:
+    add friend,
+    delete friend,
+    search friend,
+    mark a friend,
+    show info of a friend (ip or smt?)
+    reload the page?
+    */
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::FriendList_State::up() {
+    if (_friend_num > 0) {
+        _current_option = (_current_option > 1) ? _current_option-1 : _friend_num;
+    }
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::FriendList_State::down() {
+    if (_friend_num > 0) {
+        _current_option = (_current_option < _friend_num) ? _current_option+1 : 1;
+    }
+    return STATE_NOCHANGE;
+}
+STATE_TYPE Client_Ctrl::FriendList_State::select() {
+    return STATE_CHAT;
+}
+STATE_TYPE Client_Ctrl::FriendList_State::execute_specific_request(const req_t& _request) {
+
+}
+
+Client_Ctrl::Setting_State::Setting_State(Client_Ctrl* _target)
+: State(_target) {
+
+}
+
+void Client_Ctrl::Setting_State::show() {
+
+}
+
+STATE_TYPE Client_Ctrl::Setting_State::left() {
+
+}
+
+STATE_TYPE Client_Ctrl::Setting_State::right() {
+
+}
+
+STATE_TYPE Client_Ctrl::Setting_State::up() {
+
+}
+
+STATE_TYPE Client_Ctrl::Setting_State::down() {
+
+}
+
+STATE_TYPE Client_Ctrl::Setting_State::select() {
+
+}
+
+STATE_TYPE Client_Ctrl::Setting_State::execute_specific_request(const req_t& _request) {
+
+}
+
+Client_Ctrl::Instructions_State::Instructions_State(Client_Ctrl* _target)
+: State(_target) {
+
+}
+
+void Client_Ctrl::Instructions_State::show() {
+
+}
+
+STATE_TYPE Client_Ctrl::Instructions_State::left() {
+
+}
+
+STATE_TYPE Client_Ctrl::Instructions_State::right() {
+
+}
+
+STATE_TYPE Client_Ctrl::Instructions_State::up() {
+
+}
+
+STATE_TYPE Client_Ctrl::Instructions_State::down() {
+
+}
+
+STATE_TYPE Client_Ctrl::Instructions_State::select() {
+
+}
+
+STATE_TYPE Client_Ctrl::Instructions_State::execute_specific_request(const req_t& _request) {
+
+}
+
+Client_Ctrl::Info_State::Info_State(Client_Ctrl* _target)
+: State(_target) {
+
+}
+
+void Client_Ctrl::Info_State::show() {
+
+}
+
+STATE_TYPE Client_Ctrl::Info_State::left() {
+
+}
+
+STATE_TYPE Client_Ctrl::Info_State::right() {
+
+}
+
+STATE_TYPE Client_Ctrl::Info_State::up() {
+
+}
+
+STATE_TYPE Client_Ctrl::Info_State::down() {
+
+}
+
+STATE_TYPE Client_Ctrl::Info_State::select() {
+
+}
+
+STATE_TYPE Client_Ctrl::Info_State::execute_specific_request(const req_t& _request) {
+
+}
+
+Client_Ctrl::Chat_State::Chat_State(Client_Ctrl* _target)
+: State(_target) {
+
+}
+
+void Client_Ctrl::Chat_State::show() {
+
+}
+
+STATE_TYPE Client_Ctrl::Chat_State::left() {
+    return STATE_FRIENDLIST;
+}
+
+STATE_TYPE Client_Ctrl::Chat_State::right() {
+    if (_message != "") {
+        _client->_transporter->send_request(SENDTO " " + _friendname + " " + _message + __CURRENT_TIME__);
+        _message = "";
+    }
+    return STATE_NOCHANGE;
+}
+
+STATE_TYPE Client_Ctrl::Chat_State::up() {
+
+}
+
+STATE_TYPE Client_Ctrl::Chat_State::down() {
+
+}
+
+STATE_TYPE Client_Ctrl::Chat_State::select() {
+
+}
+
+STATE_TYPE Client_Ctrl::Chat_State::execute_specific_request(const req_t& _request) {
+
+}
+
+Client_Ctrl::ClientManager::ClientManager(Client_Ctrl* _target)
+: _client(_target) {
+
+}
+
+void Client_Ctrl::ClientManager::set_state(STATE_TYPE _state) {
+    switch (_state) {
+    case STATE_LOGIN:
+        current_state = __LOGIN_STATE__;
+        break;
+    case STATE_REGISTATION:
+        current_state = __REGISTER_STATE__;
+        break;
+    case STATE_MENU:
+        current_state = __MENU_STATE__;
+        break;
+    case STATE_FRIENDLIST:
+        current_state = __FRIENDLIST_STATE__;
+        break;
+    case STATE_SETTING:
+        current_state = __SETTING_STATE__;
+        break;
+    case STATE_INSTRUCTIONS:
+        current_state = __INSTRUCTIONS_STATE__;
+        break;
+    case STATE_INFO:
+        current_state = __INFO_STATE__;
+        break;
+    case STATE_CHAT:
+        current_state = __CHAT_STATE__;
+        break;
+    case STATE_EXIT:
+    case STATE_NOCHANGE:
+    default:
+        break;
+    }
+    if (_state != STATE_NOCHANGE) current_state->show();
+}
+
+void Client_Ctrl::ClientManager::left() {
+    STATE_TYPE next_state = current_state->left();
+    set_state(next_state);
+}
+
+void Client_Ctrl::ClientManager::right() {
+    STATE_TYPE next_state = current_state->right();
+    set_state(next_state);
+}
+
+void Client_Ctrl::ClientManager::up() {
+    STATE_TYPE next_state = current_state->up();
+    set_state(next_state);
+}
+
+void Client_Ctrl::ClientManager::down() {
+    STATE_TYPE next_state = current_state->down();
+    set_state(next_state);
+}
+
+void Client_Ctrl::ClientManager::select() {
+    STATE_TYPE next_state = current_state->select();
+    set_state(next_state);
+}
+
+void Client_Ctrl::ClientManager::execute_request(const req_t& _request) {
+    STATE_TYPE next_state = current_state->execute_request(_request);
+    set_state(next_state);
+}

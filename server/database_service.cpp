@@ -112,6 +112,7 @@ Soft_Database* Soft_Database::getInstance() {
 void Soft_Database::save_client_info(const std::string& client_name, const std::string& password, const struct sockaddr_in& client_addr) {
     if (!client_name_exist(client_name)) {
         auto _client_data = std::make_shared<struct client_data_t>();
+        _client_data->status = OFFLINE;
         _client_data->address = client_addr;
         _client_data->password = password;
         client_table->insert({client_name, _client_data});
@@ -231,6 +232,16 @@ void Soft_Database::update_client_address(const std::string& client_name, const 
     client_table->at(client_name)->address = new_address;
 }
 
+/**
+ * @brief update status of a client
+ * @param client_name: name of the client
+ * @param new_status: the new status
+ * @return none
+ */
+void Soft_Database::update_client_status(const std::string& client_name, USER_STATUS new_status) {
+    client_table->at(client_name)->status = new_status;
+}
+
 
 Hard_Database::Hard_Database()
 : Database() {
@@ -327,5 +338,15 @@ void Hard_Database::update_client_password(const std::string& client_name, const
  * @return none
  */
 void Hard_Database::update_client_address(const std::string& client_name, const struct sockaddr_in& new_address) {
+
+}
+
+/**
+ * @brief update status of a client
+ * @param client_name: name of the client
+ * @param new_status: the new status
+ * @return none
+ */
+void Hard_Database::update_client_status(const std::string& client_name, USER_STATUS new_status) {
 
 }

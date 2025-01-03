@@ -24,6 +24,7 @@ public:
     virtual void update_client_name(const std::string& client_name, const std::string& new_name) = 0;
     virtual void update_client_password(const std::string& client_name, const std::string& new_pass) = 0;
     virtual void update_client_address(const std::string& client_name, const struct sockaddr_in& new_address) = 0;
+    virtual void update_client_status(const std::string& client_name, USER_STATUS new_status) = 0;
 
     const std::string* get_client_password(const std::string& client_name) const;
     const struct sockaddr_in* get_client_addr(const std::string& client_name) const;
@@ -49,6 +50,7 @@ public:
     void update_client_name(const std::string& client_name, const std::string& new_name) override;
     void update_client_password(const std::string& client_name, const std::string& new_pass) override;
     void update_client_address(const std::string& client_name, const struct sockaddr_in& new_address) override;
+    void update_client_status(const std::string& client_name, USER_STATUS new_status) override;
 
     ~Soft_Database() override;
 };
@@ -67,6 +69,7 @@ public:
     void update_client_name(const std::string& client_name, const std::string& new_name) override;
     void update_client_password(const std::string& client_name, const std::string& new_pass) override;
     void update_client_address(const std::string& client_name, const struct sockaddr_in& new_address) override;
+    void update_client_status(const std::string& client_name, USER_STATUS new_status) override;
 
     ~Hard_Database() override;
 };

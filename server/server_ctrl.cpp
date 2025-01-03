@@ -53,6 +53,7 @@ void Server_Ctrl::server_shutdown() {
 void Server_Ctrl::client_handler() {
     /* the first req' contents from client are always the user_name + password */
     verify_account();
+    _soft_database->update_client_status(_client_name, ONLINE);
 
     is_serving = true;
     _transporter->open_mailbox(_client_name);
@@ -172,6 +173,7 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         _transporter->response(mail_form("server", msg_back, __CURRENT_TIME__));
     }
     else if (req_type == REQ_TERMINATE) {
+        _soft_database->update_client_status(_client_name, OFFLINE);
         return E_TERM;
     }
     else if (req_type == REQ_WHATISMYNAME) {

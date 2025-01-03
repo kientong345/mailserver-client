@@ -60,6 +60,11 @@ typedef enum {
     E_REGISTER_SUCCEED
 } ERROR_CODE;
 
+typedef enum {
+    OFFLINE,
+    ONLINE
+} USER_STATUS;
+
 typedef struct {
     long mtype;
     char mtext[1024];
@@ -82,6 +87,7 @@ typedef struct received_mail {
 } received_mail;
 
 struct client_data_t {
+    USER_STATUS status;
     struct sockaddr_in address;
     std::string password;
     std::vector<sent_mail> sent_mailbox;

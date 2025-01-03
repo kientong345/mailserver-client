@@ -116,7 +116,7 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         // sorry for garbage code!
         auto content = static_cast<std::tuple<std::string, std::string, uint64_t>*>(_request.second.get());
         /* elements in tuple: sender - content - sent_time */
-        _transporter->send_to_mailbox(std::get<0>(*content), mail_form(_client_name, std::get<1>(*content), std::get<2>(*content)));
+        _transporter->send_to_mailbox(std::get<0>(*content), mail_form(_client_name, std::get<1>(*content), std::to_string(std::get<2>(*content))));
         _soft_database->save_sent_mail(_client_name, std::get<0>(*content), std::get<1>(*content), std::get<2>(*content));
         _soft_database->save_received_mail(std::get<0>(*content), _client_name, std::get<1>(*content), std::get<2>(*content));
     }

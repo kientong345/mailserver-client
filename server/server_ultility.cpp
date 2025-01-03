@@ -111,12 +111,12 @@ std::string getWord(const std::string& _sentence, uint8_t _wordpos) {
     return word;
 }
 
-std::string mail_form(const std::string& _sender, const std::string& _content, uint64_t _sent_time) {
+std::string mail_form(const std::string& _sender, const std::string& _content, const std::string& _sent_time) {
     std::string ret("");
     ret += "\'";
     ret += _sender; ret += "\' \'";
     ret += _content; ret += "\' ";
-    ret += std::to_string(_sent_time);
+    ret += _sent_time;
 
     return ret;
 }

@@ -3,7 +3,8 @@
 #include <iostream>
 
 ClientTransporter::ClientTransporter()
-: client_fd(-1) {
+: client_fd(-1),
+  receive_task(nullptr) {
     send_buf[0] = '\0';
     rcv_buf[0] = '\0';
 }
@@ -93,6 +94,10 @@ void ClientTransporter::end() {
 
 }
 
+void ClientTransporter::set_task_on_receive_data(std::function<void(void)> task_func) {
+    receive_task = task_func;
+}
+
 /**
  * @brief awake whenever send_request execute, and send the message from send_request to server
  * @return none
@@ -125,5 +130,8 @@ void ClientTransporter::recv_thread_func() {
         int bytercv = ::recv(client_fd, rcv_buf, BUF_SIZE, 0);
         rcv_buf[bytercv] = '\0';
         rcv_buf[0] = '\0';
+
+        // execute any registered task
+        if (!receive_task) receive_task();
     }
 }

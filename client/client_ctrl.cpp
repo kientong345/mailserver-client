@@ -28,12 +28,19 @@ void Client_Ctrl::client_init() {
 void Client_Ctrl::client_main() {
     _transporter->connect_to_server(SERVER_IP, SERVER_PORT);
     /* to be change */
-    ClientManager(this).set_state(STATE_LOGIN);
-    std::string _my_name;
-    std::cout << "enter your username: ";
-    std::getline(std::cin, _my_name);
-    _transporter->send_request(_my_name);
+    // ClientManager(this).set_state(STATE_LOGIN);
+    // std::string _my_name;
+    // std::cout << "enter your username: ";
+    // std::getline(std::cin, _my_name);
+    // _transporter->send_request(_my_name);
     /* to be change */
+    _transporter->set_task_on_receive_data([this](){
+        std::string _rcv_mail = _transporter->receive_response();
+        std::string _sender = getWord(_rcv_mail, 1);
+        std::string _content = getWord(_rcv_mail, 2);
+        uint64_t _rcv_time = std::stoull(getWord(_rcv_mail, 3));
+        _received_mailbox->save_mail(_sender, _content, _rcv_time);
+    });
 
     user_handler();
 }

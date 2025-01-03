@@ -8,6 +8,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <chrono>
 #include <arpa/inet.h>
 
 #define PORT                           8008
@@ -29,6 +30,12 @@
 
 #define SENT_MAILBOX                   "sent_mailbox"
 #define RCV_MAILBOX                    "received_mailbox"
+#define LOGIN_SUCCEED                  (std::string("login succeed"))
+#define LOGIN_FAILED                   (std::string("login failed"))
+#define REGISTER_SUCCEED               (std::string("register succeed"))
+#define REGISTER_FAILED                (std::string("register failed"))
+
+#define __CURRENT_TIME__               (std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()))
 
 typedef enum {
     REQ_UNIDENTIFY,

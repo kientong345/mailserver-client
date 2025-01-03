@@ -1,6 +1,9 @@
 #include "mailclient_ctrl.h"
 #include <iostream>
 #include <signal.h>
+#include <sstream>
+
+std::string getWord(const std::string& _sentence, uint8_t _wordpos);
 
 static std::string THIS_CLIENT_NAME;
 
@@ -200,37 +203,11 @@ void Client::send_thread_func() {
 }
 
 void Client::recv_thread_func() {
-    auto get_sender = [this](){
-        std::string _sender = "";
-        const char* tmp_buf = rcv_buf;
-        while (*tmp_buf != '[') {
-            if (*tmp_buf == '\0') return static_cast<std::string>("");
-            ++tmp_buf;
-        }
-        ++tmp_buf;
-        while (*tmp_buf != ']') {
-            if (*tmp_buf == '\0') return static_cast<std::string>("");
-            _sender += *tmp_buf;
-            ++tmp_buf;
-        }
-        return _sender;
-    };
-    auto get_content = [this](){
-        std::string _content = "";
-        const char* tmp_buf = rcv_buf;
-        while (*tmp_buf != ']') {
-            if (*tmp_buf == '\0') return static_cast<std::string>("");
-            ++tmp_buf;
-        }
-        _content += (tmp_buf+1);
-        return _content;
-    };
-
     while(1) {
         int bytercv = recv(client_fd, rcv_buf, BUF_SIZE, 0);
         rcv_buf[bytercv] = '\0';
         std::lock_guard<std::shared_mutex> slock(rcv_mailbox_mut);
-        received_mailbox.emplace_back<received_mail>({get_sender(), get_content()});
+        received_mailbox.emplace_back<received_mail>({getWord(rcv_buf, 1), getWord(rcv_buf, 2)});
         rcv_buf[0] = '\0';
     }
 }
@@ -388,4 +365,34 @@ void Client::updateMyName() {
     };
     std::thread updatename_thread(update_my_name);
     updatename_thread.detach();
+}
+
+std::string getWord(const std::string& _sentence, uint8_t _wordpos) {
+    if (_wordpos < 1) return "";
+
+    std::istringstream iss(_sentence);
+    std::string word;
+
+    auto get_next_word = [&iss](std::string& _word){
+        if(!(iss >> _word)) _word = "";
+        if ((_word[0] == '\'') || (_word[0] == '\"')) {
+            std::string tmp(_word);
+            while ((tmp.back() != '\'') && (tmp.back() != '\"')) {
+                if (!(iss >> tmp)) {
+                    _word += '\'';
+                    break;
+                }
+                _word += (" " + tmp);
+            }
+            _word.erase(0, 1);
+            _word.pop_back();
+        }
+    };
+
+    while (_wordpos) {
+        get_next_word(word);
+        --_wordpos;
+    }
+
+    return word;
 }

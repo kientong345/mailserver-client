@@ -86,11 +86,11 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         if (*(_soft_database->get_client_password(content->first)) == content->second) {
             _client_name = content->first;
             _soft_database->update_client_address(_client_name, _client_addr);
-            _transporter->response("login_succeed");
+            _transporter->response(LOGIN_SUCCEED);
             return E_LOGIN_SUCCEED;
         }
         else {
-            _transporter->response("login_failed");
+            _transporter->response(LOGIN_FAILED);
             return E_LOGIN_FAILED;
         }
     }
@@ -100,11 +100,11 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
             _client_name = content->first;
             std::string _client_password = content->second;
             _soft_database->save_client_info(_client_name, _client_password, _client_addr);
-            _transporter->response("register_succeed");
+            _transporter->response(REGISTER_SUCCEED);
             return E_REGISTER_SUCCEED;
         }
         else {
-            _transporter->response("register_failed");
+            _transporter->response(REGISTER_FAILED);
             return E_REGISTER_FAILED;
         }
     }
@@ -115,7 +115,8 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     else if (req_type == REQ_SENDTO) {
         // sorry for garbage code!
         auto content = static_cast<std::tuple<std::string, std::string, uint64_t>*>(_request.second.get());
-        _transporter->send_to_mailbox(std::get<0>(*content), "[" + _client_name + "]" + std::get<1>(*content));
+        /* elements in tuple: sender - content - sent_time */
+        _transporter->send_to_mailbox(std::get<0>(*content), mail_form(_client_name, std::get<1>(*content), std::get<2>(*content)));
         _soft_database->save_sent_mail(_client_name, std::get<0>(*content), std::get<1>(*content), std::get<2>(*content));
         _soft_database->save_received_mail(std::get<0>(*content), _client_name, std::get<1>(*content), std::get<2>(*content));
     }
@@ -127,12 +128,12 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         else if (content->first == RCV_MAILBOX) {
             _soft_database->delete_received_mail(_client_name, content->second);
         }
-        else _transporter->response("[server]wrong mailbox type");
+        else _transporter->response(mail_form("server", "wrong mailbox type", __CURRENT_TIME__));
     }
     else if (req_type == REQ_CHANGENAME) {
         std::string new_name = *(static_cast<std::string*>(_request.second.get()));
         if (_soft_database->client_name_exist(new_name)) {
-            _transporter->response("[server]that name has already existed");
+            _transporter->response(mail_form("server", "that name has already existed", __CURRENT_TIME__));
         }
         else {
             _soft_database->update_client_name(_client_name, new_name);
@@ -143,7 +144,7 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         }
     }
     else if (req_type == REQ_SEARCH) {
-        std::string msg_back = "[server]";
+        std::string msg_back = "";
         std::string target_name = *(static_cast<std::string*>(_request.second.get()));
         if (target_name == "") {
             for (auto& user : *(_soft_database->get_client_table())) {
@@ -152,7 +153,7 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
                 msg_back += "ip address: ";
                 msg_back += inet_ntoa(user.second->address.sin_addr); msg_back += " - ";
                 msg_back += "port: ";
-                msg_back += std::to_string(ntohs(user.second->address.sin_port)); msg_back += "\n";
+                msg_back += std::to_string(ntohs(user.second->address.sin_port));
             }
         }
         else {
@@ -165,17 +166,16 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
                 msg_back += "ip address: ";
                 msg_back += inet_ntoa(_soft_database->get_client_addr(target_name)->sin_addr); msg_back += " - ";
                 msg_back += "port: ";
-                msg_back += std::to_string(ntohs(_soft_database->get_client_addr(target_name)->sin_port)); msg_back += "\n";
+                msg_back += std::to_string(ntohs(_soft_database->get_client_addr(target_name)->sin_port));
             }
         }
-        _transporter->response(msg_back);
+        _transporter->response(mail_form("server", msg_back, __CURRENT_TIME__));
     }
     else if (req_type == REQ_TERMINATE) {
         return E_TERM;
     }
     else if (req_type == REQ_WHATISMYNAME) {
-        std::string msg_back = "[server]" + _client_name;
-        _transporter->response(msg_back);
+        _transporter->response(mail_form("server", _client_name, __CURRENT_TIME__));
     }
     else if (req_type == REQ_CHANGEPASSWORD) {
         std::string new_pass = *(static_cast<std::string*>(_request.second.get()));

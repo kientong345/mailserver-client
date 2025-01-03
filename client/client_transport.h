@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
+#include <functional>
 
 class ClientTransporter {
 private:
@@ -29,11 +30,14 @@ public:
     std::string receive_response();
     void end();
 
+    void set_task_on_receive_data(std::function<void(void)> task_func);
+
     ~ClientTransporter();
 
 private:
     void send_thread_func();
     void recv_thread_func();
+    std::function<void(void)> receive_task;
 
 };
 

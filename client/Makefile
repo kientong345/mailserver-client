@@ -9,3 +9,9 @@ clean:
 
 clean_new:
 	rm ./client
+
+graphic:
+	g++ client_graphic.cpp test_graphic.cpp -o graphic -lSDL2 -lSDL2_image -lSDL2_ttf
+
+clean_graphic:
+	rm ./graphic

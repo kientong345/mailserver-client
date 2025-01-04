@@ -109,23 +109,29 @@ typedef enum {
     UI_MODE
 } CTRL_MODE;
 
-typedef struct {
+struct sent_mail {
     std::string receiver;
     std::string content;
     uint64_t sent_time;
-} sent_mail;
+    sent_mail(const std::string& _receiver, const std::string& _content, uint64_t _sent_time) 
+    : receiver(_receiver), content(_content), sent_time(_sent_time) {}
+};
 
-typedef struct {
+struct received_mail {
     std::string sender;
     std::string content;
     uint64_t rcv_time;
-} received_mail;
+    received_mail(const std::string& _sender, const std::string& _content, uint64_t _rcv_time) 
+    : sender(_sender), content(_content), rcv_time(_rcv_time) {}
+};
 
-typedef struct {
+struct chat_line {
     std::string chat_owner;
     std::string chat_content;
     uint64_t chat_time;
-} chat_line;
+    chat_line(const std::string& _owner, const std::string& _content, uint64_t _time) 
+    : chat_owner(_owner), chat_content(_content), chat_time(_time) {}
+};
 
 typedef std::pair<REQ_TYPE, std::shared_ptr<void>>      req_t;
 

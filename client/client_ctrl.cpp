@@ -18,8 +18,8 @@ Client_Ctrl::~Client_Ctrl() {
 
 void Client_Ctrl::client_init() {
     _transporter = ClientTransporter::getInstance();
-    _sent_mailbox = SentMailbox::getInstance();
-    _received_mailbox = ReceivedMailbox::getInstance();
+    _sent_mailbox = Mailbox<sent_mail>::getInstance();
+    _received_mailbox = Mailbox<received_mail>::getInstance();
     _graphic = ClientGraphic::getInstance();
 
     _transporter->init();
@@ -43,6 +43,10 @@ void Client_Ctrl::client_main() {
     });
 
     user_handler();
+}
+
+void Client_Ctrl::client_end() {
+
 }
 
 void Client_Ctrl::user_handler() {
@@ -395,7 +399,7 @@ STATE_TYPE Client_Ctrl::FriendList_State::select() {
     return STATE_CHAT;
 }
 STATE_TYPE Client_Ctrl::FriendList_State::execute_specific_request(const req_t& _request) {
-
+    return STATE_NOCHANGE;
 }
 
 Client_Ctrl::Setting_State::Setting_State(Client_Ctrl* _target)
@@ -408,27 +412,27 @@ void Client_Ctrl::Setting_State::show() {
 }
 
 STATE_TYPE Client_Ctrl::Setting_State::left() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Setting_State::right() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Setting_State::up() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Setting_State::down() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Setting_State::select() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Setting_State::execute_specific_request(const req_t& _request) {
-
+    return STATE_NOCHANGE;
 }
 
 Client_Ctrl::Instructions_State::Instructions_State(Client_Ctrl* _target)
@@ -441,27 +445,27 @@ void Client_Ctrl::Instructions_State::show() {
 }
 
 STATE_TYPE Client_Ctrl::Instructions_State::left() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Instructions_State::right() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Instructions_State::up() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Instructions_State::down() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Instructions_State::select() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Instructions_State::execute_specific_request(const req_t& _request) {
-
+    return STATE_NOCHANGE;
 }
 
 Client_Ctrl::Info_State::Info_State(Client_Ctrl* _target)
@@ -474,27 +478,27 @@ void Client_Ctrl::Info_State::show() {
 }
 
 STATE_TYPE Client_Ctrl::Info_State::left() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Info_State::right() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Info_State::up() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Info_State::down() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Info_State::select() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Info_State::execute_specific_request(const req_t& _request) {
-
+    return STATE_NOCHANGE;
 }
 
 Client_Ctrl::Chat_State::Chat_State(Client_Ctrl* _target)
@@ -519,19 +523,19 @@ STATE_TYPE Client_Ctrl::Chat_State::right() {
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::up() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::down() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::select() {
-
+    return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::execute_specific_request(const req_t& _request) {
-
+    return STATE_NOCHANGE;
 }
 
 Client_Ctrl::ClientManager::ClientManager(Client_Ctrl* _target)

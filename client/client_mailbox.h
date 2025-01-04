@@ -6,51 +6,36 @@
 #include <utility>
 #include <shared_mutex>
 
+template<class MailType>
 class Mailbox {
 protected:
-    std::vector<sent_mail> sent_mailbox;
-    std::vector<received_mail> received_mailbox;    
-    std::shared_mutex sent_mailbox_mut;
-    std::shared_mutex rcv_mailbox_mut;
+    std::vector<MailType> mailbox;  
+    std::shared_mutex mailbox_mut;
+
+    Mailbox();
 
 public:
-    virtual void save_mail(const std::string& _header, const std::string _content, uint64_t _time) = 0;
-    virtual void delete_mail(uint16_t _position) = 0;
-    virtual const void* get_mail(uint16_t _position) = 0;
-    virtual uint16_t number_of_mail() = 0;
+    static Mailbox* getInstance();
+    void save_mail(const std::string& _header, const std::string _content, uint64_t _time);
+    void delete_mail(uint16_t _position);
+    const MailType* get_mail(uint16_t _position);
+    std::vector<MailType>& get_mailbox();
+    uint16_t number_of_mail();
     std::vector<chat_line> get_conversation(const std::string& user1, const std::string& user2) const;
 
-};
-
-class SentMailbox : public Mailbox {
-private:
-    SentMailbox();
-
-public:
-    static SentMailbox* getInstance();
-
-    void save_mail(const std::string& _header, const std::string _content, uint64_t _time) override;
-    void delete_mail(uint16_t _position) override;
-    const sent_mail* get_mail(uint16_t _position) override;
-    uint16_t number_of_mail() override;
-
-    ~SentMailbox();
+    ~Mailbox();
 
 };
 
-class ReceivedMailbox : public Mailbox {
+class MailboxManager {
 private:
-    ReceivedMailbox();
-
+    Mailbox<sent_mail>* sent_mailbox;
+    Mailbox<received_mail>* received_mailbox;
 public:
-    static ReceivedMailbox* getInstance();
+    MailboxManager(Mailbox<sent_mail>* _sent_mailbox, Mailbox<received_mail>* _received_mailbox);
+    ~MailboxManager();
 
-    void save_mail(const std::string& _header, const std::string _content, uint64_t _time) override;
-    void delete_mail(uint16_t _position) override;
-    const received_mail* get_mail(uint16_t _position) override;
-    uint16_t number_of_mail() override;
-
-    ~ReceivedMailbox();
+    std::vector<chat_line> get_conversation(const std::string& user1, const std::string& user2);
 
 };
 

@@ -43,12 +43,12 @@ req_t parseRequest(const std::string& _message) {
         req.first = REQ_SHOWCHAT;
         req.second = std::make_shared<std::string>(getWord(_message, 2)); // chat history between you and this user
     }
-    else if (req_type == INPUT_BACK) {
-        req.first = REQ_BACK;
+    else if (req_type == INPUT_LEFT) {
+        req.first = REQ_LEFT;
         req.second = nullptr;
     }
-    else if (req_type == INPUT_NEXT) {
-        req.first = REQ_NEXT;
+    else if (req_type == INPUT_RIGHT) {
+        req.first = REQ_RIGHT;
         req.second = nullptr;
     }
     else if (req_type == INPUT_UP) {

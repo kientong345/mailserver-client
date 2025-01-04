@@ -9,8 +9,8 @@
 class Client_Ctrl {
 protected:
     ClientTransporter* _transporter;
-    Mailbox* _sent_mailbox;
-    Mailbox* _received_mailbox;
+    Mailbox<sent_mail>* _sent_mailbox;
+    Mailbox<received_mail>* _received_mailbox;
     ClientGraphic* _graphic;
 
     CTRL_MODE _current_mode;

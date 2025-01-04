@@ -35,7 +35,7 @@ void Mailbox<MailType>::delete_mail(uint16_t _position) {
 }
 
 template<class MailType>
-const MailType* Mailbox<MailType>::get_mail(uint16_t _position) const {
+const MailType* Mailbox<MailType>::get_mail(uint16_t _position) {
     MailType* ret;
     std::shared_lock<std::shared_mutex> slock(mailbox_mut);
     if ((_position > number_of_mail()) || (_position < 1)) {
@@ -49,12 +49,12 @@ const MailType* Mailbox<MailType>::get_mail(uint16_t _position) const {
 }
 
 template<class MailType>
-const std::vector<MailType>& Mailbox<MailType>::get_mailbox() const {
+const std::vector<MailType>& Mailbox<MailType>::get_mailbox() {
     return mailbox;
 }
 
 template<class MailType>
-uint16_t Mailbox<MailType>::number_of_mail() const {
+uint16_t Mailbox<MailType>::number_of_mail() {
     return mailbox.size();
 }
 

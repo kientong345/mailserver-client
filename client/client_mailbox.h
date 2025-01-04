@@ -18,10 +18,9 @@ public:
     static Mailbox* getInstance();
     void save_mail(const std::string& _header, const std::string _content, uint64_t _time);
     void delete_mail(uint16_t _position);
-    const MailType* get_mail(uint16_t _position) const;
-    const std::vector<MailType>& get_mailbox() const;
-    uint16_t number_of_mail() const;
-    std::vector<chat_line> get_conversation(const std::string& user1, const std::string& user2) const;
+    const MailType* get_mail(uint16_t _position);
+    const std::vector<MailType>& get_mailbox();
+    uint16_t number_of_mail();
 
     ~Mailbox();
 

@@ -35,7 +35,7 @@ void Mailbox<MailType>::delete_mail(uint16_t _position) {
 }
 
 template<class MailType>
-const MailType* Mailbox<MailType>::get_mail(uint16_t _position) {
+const MailType* Mailbox<MailType>::get_mail(uint16_t _position) const {
     MailType* ret;
     std::shared_lock<std::shared_mutex> slock(mailbox_mut);
     if ((_position > number_of_mail()) || (_position < 1)) {
@@ -49,12 +49,12 @@ const MailType* Mailbox<MailType>::get_mail(uint16_t _position) {
 }
 
 template<class MailType>
-std::vector<MailType>& Mailbox<MailType>::get_mailbox() {
+const std::vector<MailType>& Mailbox<MailType>::get_mailbox() const {
     return mailbox;
 }
 
 template<class MailType>
-uint16_t Mailbox<MailType>::number_of_mail() {
+uint16_t Mailbox<MailType>::number_of_mail() const {
     return mailbox.size();
 }
 
@@ -73,7 +73,7 @@ MailboxManager::~MailboxManager() {
  * @param user2: the user who is chatting with user1
  * @return a vector contain chat history between 2 user, sorting by sent/rcv time
  */
-std::vector<chat_line> MailboxManager::get_conversation(const std::string& user1, const std::string& user2) {
+std::vector<chat_line> MailboxManager::get_conversation(const std::string& user1, const std::string& user2) const {
     std::vector<chat_line> chat_history;
     for (const auto& _mail : sent_mailbox->get_mailbox()) {
         if (_mail.receiver == user2) {

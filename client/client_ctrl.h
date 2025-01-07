@@ -80,6 +80,7 @@ public:
         LOGIN_OPTION _current_option;
         std::string _user_name;
         std::string _password;
+        void update_indicator();
     public:
         Login_State(Client_Ctrl* _target);
         ~Login_State() = default;
@@ -115,6 +116,7 @@ public:
         REGISTER_OPTION _current_option;
         std::string _user_name;
         std::string _password;
+        void update_indicator();
     public:
         Register_State(Client_Ctrl* _target);
         ~Register_State() = default;
@@ -149,6 +151,7 @@ public:
             EXIT
         };
         MENU_OPTION _current_option;
+        void update_indicator();
     public:
         Menu_State(Client_Ctrl* _target);
         ~Menu_State() = default;

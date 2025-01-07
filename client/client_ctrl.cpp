@@ -47,7 +47,7 @@ void Client_Ctrl::client_main() {
 }
 
 void Client_Ctrl::client_end() {
-
+    _graphic->end();
 }
 
 void Client_Ctrl::user_handler() {
@@ -144,6 +144,7 @@ static Client_Ctrl _my_app;
 
 void sigtermhandler(int signo) {
     if (signo == SIGTERM) {
+        _my_app.client_end();
         exit(0);
     }
 }
@@ -182,12 +183,36 @@ Client_Ctrl::Login_State::Login_State(Client_Ctrl* _target)
 : State(_target), _current_option(LOGIN_OPTION::USER_NAME) {
 
 }
+
+void Client_Ctrl::Login_State::update_indicator() {
+    show(); // had to update the whole screen, help me >>
+    switch (_current_option) {
+    case LOGIN_OPTION::USER_NAME:
+        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_1));
+        break;
+    case LOGIN_OPTION::PASSWORD:
+        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_2));
+        break;
+    case LOGIN_OPTION::SUBMIT:
+        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_3));
+        break;
+    case LOGIN_OPTION::CREATE_NEW_ACCOUNT:
+        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_4));
+        break;
+    default:
+        break;
+    }
+}
+
 void Client_Ctrl::Login_State::show() {
-    _graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
-    _graphic->display_entity(LOGIN_USERNAME_BOX);
-    _graphic->display_entity(LOGIN_PASSWORD_BOX);
-    _graphic->display_entity(LOGIN_SUBMIT_BOX);
-    _graphic->display_entity(LOGIN_QUESTION);
+    _client->_graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
+    _client->_graphic->display_entity(LOGIN_TEXT);
+    _client->_graphic->display_entity(LOGIN_USERNAME_TEXT);
+    _client->_graphic->display_entity(LOGIN_USERNAME_BOX);
+    _client->_graphic->display_entity(LOGIN_PASSWORD_TEXT);
+    _client->_graphic->display_entity(LOGIN_PASSWORD_BOX);
+    _client->_graphic->display_entity(LOGIN_SUBMIT_BOX);
+    _client->_graphic->display_entity(LOGIN_QUESTION);
 }
 
 STATE_TYPE Client_Ctrl::Login_State::left() {
@@ -201,11 +226,13 @@ STATE_TYPE Client_Ctrl::Login_State::right() {
 STATE_TYPE Client_Ctrl::Login_State::up() {
     if (_current_option == LOGIN_OPTION::USER_NAME) _current_option = LOGIN_OPTION::CREATE_NEW_ACCOUNT;
     else _current_option = static_cast<LOGIN_OPTION>(static_cast<uint8_t>(_current_option)-1);
+    update_indicator();
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::Login_State::down() {
     if (_current_option == LOGIN_OPTION::CREATE_NEW_ACCOUNT) _current_option = LOGIN_OPTION::USER_NAME;
     else _current_option = static_cast<LOGIN_OPTION>(static_cast<uint8_t>(_current_option)+1);
+    update_indicator();
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::Login_State::select() {
@@ -248,8 +275,35 @@ Client_Ctrl::Register_State::Register_State(Client_Ctrl* _target)
 
 }
 
+void Client_Ctrl::Register_State::update_indicator() {
+    show(); // had to update the whole screen, help me >>
+    switch (_current_option) {
+    case REGISTER_OPTION::USER_NAME:
+        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_1));
+        break;
+    case REGISTER_OPTION::PASSWORD:
+        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_2));
+        break;
+    case REGISTER_OPTION::SUBMIT:
+        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_3));
+        break;
+    case REGISTER_OPTION::HAD_ACCOUNT:
+        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_4));
+        break;
+    default:
+        break;
+    }
+}
+
 void Client_Ctrl::Register_State::show() {
-    _graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
+    _client->_graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
+    _client->_graphic->display_entity(REGISTER_TEXT);
+    _client->_graphic->display_entity(REGISTER_USERNAME_TEXT);
+    _client->_graphic->display_entity(REGISTER_USERNAME_BOX);
+    _client->_graphic->display_entity(REGISTER_PASSWORD_TEXT);
+    _client->_graphic->display_entity(REGISTER_PASSWORD_BOX);
+    _client->_graphic->display_entity(REGISTER_SUBMIT_BOX);
+    _client->_graphic->display_entity(REGISTER_QUESTION);
 }
 
 STATE_TYPE Client_Ctrl::Register_State::left() {
@@ -263,12 +317,14 @@ STATE_TYPE Client_Ctrl::Register_State::right() {
 STATE_TYPE Client_Ctrl::Register_State::up() {
     if (_current_option == REGISTER_OPTION::USER_NAME) _current_option = REGISTER_OPTION::HAD_ACCOUNT;
     else _current_option = static_cast<REGISTER_OPTION>(static_cast<uint8_t>(_current_option)-1);
+    update_indicator();
     return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Register_State::down() {
     if (_current_option == REGISTER_OPTION::HAD_ACCOUNT) _current_option = REGISTER_OPTION::USER_NAME;
     else _current_option = static_cast<REGISTER_OPTION>(static_cast<uint8_t>(_current_option)+1);
+    update_indicator();
     return STATE_NOCHANGE;
 }
 
@@ -314,7 +370,7 @@ Client_Ctrl::Menu_State::Menu_State(Client_Ctrl* _target)
 }
 
 void Client_Ctrl::Menu_State::show() {
-    _graphic->display_allscreen(MENU_BACKGROUND_PATH);
+    _client->_graphic->display_allscreen(MENU_BACKGROUND_PATH);
 }
 STATE_TYPE Client_Ctrl::Menu_State::left() {
     _client->_transporter->send_request(LOGOUT);

@@ -1,5 +1,6 @@
 #include "client_ctrl.h"
 #include "client_ultility.h"
+#include "client_gui_config.h"
 #include <signal.h>
 #include <iostream>
 
@@ -182,7 +183,11 @@ Client_Ctrl::Login_State::Login_State(Client_Ctrl* _target)
 
 }
 void Client_Ctrl::Login_State::show() {
-
+    _graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
+    _graphic->display_entity(LOGIN_USERNAME_BOX);
+    _graphic->display_entity(LOGIN_PASSWORD_BOX);
+    _graphic->display_entity(LOGIN_SUBMIT_BOX);
+    _graphic->display_entity(LOGIN_QUESTION);
 }
 
 STATE_TYPE Client_Ctrl::Login_State::left() {
@@ -244,7 +249,7 @@ Client_Ctrl::Register_State::Register_State(Client_Ctrl* _target)
 }
 
 void Client_Ctrl::Register_State::show() {
-
+    _graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
 }
 
 STATE_TYPE Client_Ctrl::Register_State::left() {
@@ -309,7 +314,7 @@ Client_Ctrl::Menu_State::Menu_State(Client_Ctrl* _target)
 }
 
 void Client_Ctrl::Menu_State::show() {
-
+    _graphic->display_allscreen(MENU_BACKGROUND_PATH);
 }
 STATE_TYPE Client_Ctrl::Menu_State::left() {
     _client->_transporter->send_request(LOGOUT);

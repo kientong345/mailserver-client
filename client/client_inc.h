@@ -55,9 +55,6 @@
 #define INPUT_SELECT            "select"
 #define INPUT_SWITCH            "switch"
 
-#define BACKGROUND_PATH         "./resource/bocchi.jpg"
-#define FONT_PATH               "./resource/Arial_Bold_Italic.ttf"
-
 typedef enum {
     REQ_UNIDENTIFY,
     /* server request */

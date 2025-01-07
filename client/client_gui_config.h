@@ -1,7 +1,7 @@
 #ifndef __CLIENT_GUI_CONFIG_H__
 #define __CLIENT_GUI_CONFIG_H__
 
-#define FONT_PATH               "./resource/Tahoma.ttf"
+#define FONT_PATH               "./resource/TahomaBd.ttf"
 
 #define LOGIN_BACKGROUND_PATH   "./resource/bocchi.jpg"
 #define MENU_BACKGROUND_PATH    "./resource/hayasaka.png"

@@ -9,7 +9,8 @@ Client_Ctrl::Client_Ctrl()
   _sent_mailbox(nullptr),
   _received_mailbox(nullptr),
   _graphic(nullptr),
-  _current_mode(UI_MODE) {
+  _current_mode(UI_MODE),
+  _manager(this) {
 
 }
 
@@ -24,6 +25,7 @@ void Client_Ctrl::client_init() {
     _graphic = ClientGraphic::getInstance();
 
     _transporter->init();
+    _graphic->init();
 }
 
 void Client_Ctrl::client_main() {
@@ -51,7 +53,7 @@ void Client_Ctrl::client_end() {
 }
 
 void Client_Ctrl::user_handler() {
-    ClientManager(this).set_state(STATE_MENU);
+    _manager.set_state(STATE_LOGIN);
    
     while (1) {
         if (_current_mode == UI_MODE) ui_handler();
@@ -60,7 +62,6 @@ void Client_Ctrl::user_handler() {
 }
 
 void Client_Ctrl::ui_handler() {
-    ClientManager _manager(this);
     INPUT_TYPE _input = get_user_input();
     switch (_input) {
     case I_LEFT:

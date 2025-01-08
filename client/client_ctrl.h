@@ -287,7 +287,7 @@ public:
         void select();
         void execute_request(const req_t& _request);
     };
-
+    ClientManager _manager;
 };
 
 #endif /* __CLIENT_CTRL_H__ */

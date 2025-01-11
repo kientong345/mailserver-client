@@ -95,6 +95,7 @@ void Client_Ctrl::ui_handler() {
 
 void Client_Ctrl::command_handler() {
     std::string user_req = _cli->get_user_cmd(10, 19);
+    _cli->display_entity(CMD_IMG); // clean cmd area
     req_t req = parseRequest(user_req);
     _manager.execute_request(req);
 }

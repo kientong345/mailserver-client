@@ -186,20 +186,6 @@ std::string ClientCLI::get_user_cmd(int xpos, int ypos) {
     move(ypos, xpos);
     char tmp[255] = {0};
     getstr(tmp);
-    display_entity(
-        (image) {
-            "command:                                                                       \n"
-            "                                                                               \n"
-            "                                                                               \n"
-            "                                                                               \n",
-            WHITE,
-            {
-                {0, 19},
-                79,
-                4
-            }
-        }
-    );
     return std::string(tmp);
 }
 

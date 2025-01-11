@@ -26,6 +26,20 @@
 "                                                                                " \
 "                                                                                "
 
+#define CMD_IMG  \
+(image) { \
+    "command:                                                                       \n" \
+    "                                                                               \n" \
+    "                                                                               \n" \
+    "                                                                               \n", \
+    WHITE, \
+    { \
+        {0, 19}, \
+        79, \
+        4 \
+    } \
+}
+
 #define INDICATOR(POS)  \
 (text) { \
     ">>", \

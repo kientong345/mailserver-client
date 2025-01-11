@@ -15,3 +15,9 @@ graphic:
 
 clean_graphic:
 	rm ./graphic
+
+cli:
+	g++ client_ctrl.cpp client_transport.cpp client_mailbox.cpp client_cli.cpp client_ultility.cpp -o client -lncurses
+
+clean_cli:
+	rm ./client

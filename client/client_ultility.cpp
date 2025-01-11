@@ -4,58 +4,6 @@
 #include <memory>
 #include <ctime>
 #include <iomanip>
-#include <ncurses.h>
-
-/**
- * @brief wait key input from user
- * @return the inputted key
- */
-INPUT_TYPE get_user_input() {
-    INPUT_TYPE ret;
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-
-    bool invalid_key = true;
-    while (invalid_key) {
-        int key = getch();
-        switch (key) {
-        case KEY_UP:
-            ret = I_UP;
-            invalid_key = false;
-            break;
-        case KEY_DOWN:
-            ret = I_DOWN;
-            invalid_key = false;
-            break;
-        case KEY_LEFT:
-            ret = I_LEFT;
-            invalid_key = false;
-            break;
-        case KEY_RIGHT:
-            ret = I_RIGHT;
-            invalid_key = false;
-            break;
-        case 10: // ASCII code of Enter
-            ret = I_SELECT;
-            invalid_key = false;
-            break;
-        case 27: // ASCII code of Esc
-            ret = I_SWITCH;
-            invalid_key = false;
-            break;
-        default: 
-            break;
-        }
-    }
-
-    keypad(stdscr, FALSE);
-    echo();
-    nocbreak();
-    endwin();
-    return ret;
-}
 
 /**
  * @brief parse a request message into corresponding type and content

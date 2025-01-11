@@ -1,6 +1,6 @@
 #include "client_ctrl.h"
 #include "client_ultility.h"
-#include "client_gui_config.h"
+#include "client_cli_config.h"
 #include <signal.h>
 #include <iostream>
 
@@ -8,7 +8,8 @@ Client_Ctrl::Client_Ctrl()
 : _transporter(nullptr),
   _sent_mailbox(nullptr),
   _received_mailbox(nullptr),
-  _graphic(nullptr),
+  //_graphic(nullptr),
+  _cli(nullptr),
   _current_mode(UI_MODE),
   _manager(this) {
 
@@ -22,10 +23,12 @@ void Client_Ctrl::client_init() {
     _transporter = ClientTransporter::getInstance();
     _sent_mailbox = Mailbox<sent_mail>::getInstance();
     _received_mailbox = Mailbox<received_mail>::getInstance();
-    _graphic = ClientGraphic::getInstance();
+    // _graphic = ClientGraphic::getInstance();
+    _cli = ClientCLI::getInstance();
 
     _transporter->init();
-    _graphic->init();
+    // _graphic->init();
+    _cli->init();
 }
 
 void Client_Ctrl::client_main() {
@@ -49,7 +52,8 @@ void Client_Ctrl::client_main() {
 }
 
 void Client_Ctrl::client_end() {
-    _graphic->end();
+    // _graphic->end();
+    _cli->end();
 }
 
 void Client_Ctrl::user_handler() {
@@ -62,7 +66,7 @@ void Client_Ctrl::user_handler() {
 }
 
 void Client_Ctrl::ui_handler() {
-    INPUT_TYPE _input = get_user_input();
+    INPUT_TYPE _input = _cli->get_user_input();
     switch (_input) {
     case I_LEFT:
         _manager.left();
@@ -80,7 +84,7 @@ void Client_Ctrl::ui_handler() {
         _manager.select();
         break;
     case I_SWITCH:
-        _current_mode = COMMAND_MODE;
+        _manager.execute_request(parseRequest(INPUT_SWITCH));
         // TODO: i really really should register the switch as an interrupt signal instead of
         // asking from user as a key binding input, how did users in command mode input that key?
         break;
@@ -90,10 +94,9 @@ void Client_Ctrl::ui_handler() {
 }
 
 void Client_Ctrl::command_handler() {
-    std::string user_req;
-    std::getline(std::cin, user_req);
+    std::string user_req = _cli->get_user_cmd(10, 19);
     req_t req = parseRequest(user_req);
-    ClientManager(this).execute_request(req);
+    _manager.execute_request(req);
 }
 
 void Client_Ctrl::login() {
@@ -175,6 +178,17 @@ STATE_TYPE Client_Ctrl::State::execute_request(const req_t& _request) {
         // ???
         return STATE_NOCHANGE;
     }
+    else if (req_type == REQ_SWITCH) {
+        if (_client->_current_mode == UI_MODE) {
+            _client->_current_mode = COMMAND_MODE;
+            _client->_cli->pause_ui();
+        }
+        else if (_client->_current_mode == COMMAND_MODE) {
+            _client->_current_mode = UI_MODE;
+            _client->_cli->continue_ui();
+        }
+        return STATE_NOCHANGE;
+    }
     else {
         return execute_specific_request(_request);
     }
@@ -186,19 +200,37 @@ Client_Ctrl::Login_State::Login_State(Client_Ctrl* _target)
 }
 
 void Client_Ctrl::Login_State::update_indicator() {
-    show(); // had to update the whole screen, help me >>
     switch (_current_option) {
     case LOGIN_OPTION::USER_NAME:
-        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_1));
+        _client->_cli->display_entity(INDICATOR(LOGIN_IND_POS_1));
         break;
     case LOGIN_OPTION::PASSWORD:
-        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_2));
+        _client->_cli->display_entity(INDICATOR(LOGIN_IND_POS_2));
         break;
     case LOGIN_OPTION::SUBMIT:
-        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_3));
+        _client->_cli->display_entity(INDICATOR(LOGIN_IND_POS_3));
         break;
     case LOGIN_OPTION::CREATE_NEW_ACCOUNT:
-        _client->_graphic->display_entity(INDICATOR(LOGIN_IND_POS_4));
+        _client->_cli->display_entity(INDICATOR(LOGIN_IND_POS_4));
+        break;
+    default:
+        break;
+    }
+}
+
+void Client_Ctrl::Login_State::clear_indicator() {
+    switch (_current_option) {
+    case LOGIN_OPTION::USER_NAME:
+        _client->_cli->erase_area(LOGIN_IND_POS_1);
+        break;
+    case LOGIN_OPTION::PASSWORD:
+        _client->_cli->erase_area(LOGIN_IND_POS_2);
+        break;
+    case LOGIN_OPTION::SUBMIT:
+        _client->_cli->erase_area(LOGIN_IND_POS_3);
+        break;
+    case LOGIN_OPTION::CREATE_NEW_ACCOUNT:
+        _client->_cli->erase_area(LOGIN_IND_POS_4);
         break;
     default:
         break;
@@ -206,14 +238,15 @@ void Client_Ctrl::Login_State::update_indicator() {
 }
 
 void Client_Ctrl::Login_State::show() {
-    _client->_graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
-    _client->_graphic->display_entity(LOGIN_TEXT);
-    _client->_graphic->display_entity(LOGIN_USERNAME_TEXT);
-    _client->_graphic->display_entity(LOGIN_USERNAME_BOX);
-    _client->_graphic->display_entity(LOGIN_PASSWORD_TEXT);
-    _client->_graphic->display_entity(LOGIN_PASSWORD_BOX);
-    _client->_graphic->display_entity(LOGIN_SUBMIT_BOX);
-    _client->_graphic->display_entity(LOGIN_QUESTION);
+    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_entity(LOGIN_TEXT);
+    _client->_cli->display_entity(LOGIN_USERNAME_TEXT);
+    _client->_cli->display_entity(LOGIN_USERNAME_BOX);
+    _client->_cli->display_entity(LOGIN_PASSWORD_TEXT);
+    _client->_cli->display_entity(LOGIN_PASSWORD_BOX);
+    _client->_cli->display_entity(LOGIN_SUBMIT_BOX);
+    _client->_cli->display_entity(LOGIN_QUESTION);
+    update_indicator();
 }
 
 STATE_TYPE Client_Ctrl::Login_State::left() {
@@ -225,12 +258,14 @@ STATE_TYPE Client_Ctrl::Login_State::right() {
 }
 
 STATE_TYPE Client_Ctrl::Login_State::up() {
+    clear_indicator();
     if (_current_option == LOGIN_OPTION::USER_NAME) _current_option = LOGIN_OPTION::CREATE_NEW_ACCOUNT;
     else _current_option = static_cast<LOGIN_OPTION>(static_cast<uint8_t>(_current_option)-1);
     update_indicator();
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::Login_State::down() {
+    clear_indicator();
     if (_current_option == LOGIN_OPTION::CREATE_NEW_ACCOUNT) _current_option = LOGIN_OPTION::USER_NAME;
     else _current_option = static_cast<LOGIN_OPTION>(static_cast<uint8_t>(_current_option)+1);
     update_indicator();
@@ -277,19 +312,37 @@ Client_Ctrl::Register_State::Register_State(Client_Ctrl* _target)
 }
 
 void Client_Ctrl::Register_State::update_indicator() {
-    show(); // had to update the whole screen, help me >>
     switch (_current_option) {
     case REGISTER_OPTION::USER_NAME:
-        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_1));
+        _client->_cli->display_entity(INDICATOR(REGISTER_IND_POS_1));
         break;
     case REGISTER_OPTION::PASSWORD:
-        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_2));
+        _client->_cli->display_entity(INDICATOR(REGISTER_IND_POS_2));
         break;
     case REGISTER_OPTION::SUBMIT:
-        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_3));
+        _client->_cli->display_entity(INDICATOR(REGISTER_IND_POS_3));
         break;
     case REGISTER_OPTION::HAD_ACCOUNT:
-        _client->_graphic->display_entity(INDICATOR(REGISTER_IND_POS_4));
+        _client->_cli->display_entity(INDICATOR(REGISTER_IND_POS_4));
+        break;
+    default:
+        break;
+    }
+}
+
+void Client_Ctrl::Register_State::clear_indicator() {
+    switch (_current_option) {
+    case REGISTER_OPTION::USER_NAME:
+        _client->_cli->erase_area(LOGIN_IND_POS_1);
+        break;
+    case REGISTER_OPTION::PASSWORD:
+        _client->_cli->erase_area(LOGIN_IND_POS_2);
+        break;
+    case REGISTER_OPTION::SUBMIT:
+        _client->_cli->erase_area(LOGIN_IND_POS_3);
+        break;
+    case REGISTER_OPTION::HAD_ACCOUNT:
+        _client->_cli->erase_area(LOGIN_IND_POS_4);
         break;
     default:
         break;
@@ -297,14 +350,15 @@ void Client_Ctrl::Register_State::update_indicator() {
 }
 
 void Client_Ctrl::Register_State::show() {
-    _client->_graphic->display_allscreen(LOGIN_BACKGROUND_PATH);
-    _client->_graphic->display_entity(REGISTER_TEXT);
-    _client->_graphic->display_entity(REGISTER_USERNAME_TEXT);
-    _client->_graphic->display_entity(REGISTER_USERNAME_BOX);
-    _client->_graphic->display_entity(REGISTER_PASSWORD_TEXT);
-    _client->_graphic->display_entity(REGISTER_PASSWORD_BOX);
-    _client->_graphic->display_entity(REGISTER_SUBMIT_BOX);
-    _client->_graphic->display_entity(REGISTER_QUESTION);
+    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_entity(REGISTER_TEXT);
+    _client->_cli->display_entity(REGISTER_USERNAME_TEXT);
+    _client->_cli->display_entity(REGISTER_USERNAME_BOX);
+    _client->_cli->display_entity(REGISTER_PASSWORD_TEXT);
+    _client->_cli->display_entity(REGISTER_PASSWORD_BOX);
+    _client->_cli->display_entity(REGISTER_SUBMIT_BOX);
+    _client->_cli->display_entity(REGISTER_QUESTION);
+    update_indicator();
 }
 
 STATE_TYPE Client_Ctrl::Register_State::left() {
@@ -316,6 +370,7 @@ STATE_TYPE Client_Ctrl::Register_State::right() {
 }
 
 STATE_TYPE Client_Ctrl::Register_State::up() {
+    clear_indicator();
     if (_current_option == REGISTER_OPTION::USER_NAME) _current_option = REGISTER_OPTION::HAD_ACCOUNT;
     else _current_option = static_cast<REGISTER_OPTION>(static_cast<uint8_t>(_current_option)-1);
     update_indicator();
@@ -323,6 +378,7 @@ STATE_TYPE Client_Ctrl::Register_State::up() {
 }
 
 STATE_TYPE Client_Ctrl::Register_State::down() {
+    clear_indicator();
     if (_current_option == REGISTER_OPTION::HAD_ACCOUNT) _current_option = REGISTER_OPTION::USER_NAME;
     else _current_option = static_cast<REGISTER_OPTION>(static_cast<uint8_t>(_current_option)+1);
     update_indicator();
@@ -371,7 +427,7 @@ Client_Ctrl::Menu_State::Menu_State(Client_Ctrl* _target)
 }
 
 void Client_Ctrl::Menu_State::show() {
-    _client->_graphic->display_allscreen(MENU_BACKGROUND_PATH);
+    //_client->_graphic->display_allscreen(MENU_BACKGROUND_PATH);
 }
 STATE_TYPE Client_Ctrl::Menu_State::left() {
     _client->_transporter->send_request(LOGOUT);

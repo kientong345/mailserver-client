@@ -4,14 +4,16 @@
 #include "client_inc.h"
 #include "client_transport.h"
 #include "client_mailbox.h"
-#include "client_graphic.h"
+// #include "client_graphic.h"
+#include "client_cli.h"
 
 class Client_Ctrl {
 protected:
     ClientTransporter* _transporter;
     Mailbox<sent_mail>* _sent_mailbox;
     Mailbox<received_mail>* _received_mailbox;
-    ClientGraphic* _graphic;
+    // ClientGraphic* _graphic;
+    ClientCLI* _cli;
 
     CTRL_MODE _current_mode;
 
@@ -81,6 +83,7 @@ public:
         std::string _user_name;
         std::string _password;
         void update_indicator();
+        void clear_indicator();
     public:
         Login_State(Client_Ctrl* _target);
         ~Login_State() = default;
@@ -117,6 +120,7 @@ public:
         std::string _user_name;
         std::string _password;
         void update_indicator();
+        void clear_indicator();
     public:
         Register_State(Client_Ctrl* _target);
         ~Register_State() = default;

@@ -35,10 +35,6 @@ void ClientTransporter::init() {
 
     ::bind(client_fd, (struct sockaddr*)&client_addr, (socklen_t)sizeof(client_addr));
 #endif /* __CUSTOM_ADDRESS__ */
-
-    /* prepare 2 threads to send and receive data with server */
-    send_thread = std::thread(&ClientTransporter::send_thread_func, this);
-    recv_thread = std::thread(&ClientTransporter::recv_thread_func, this);
 }
 
 /**
@@ -58,7 +54,10 @@ void ClientTransporter::connect_to_server(const std::string& _ipaddress, uint16_
 
     /* connect to that server */
     ::connect(client_fd, (struct sockaddr*)&server_addr, (socklen_t)sizeof(server_addr));
-    std::cout << "connected to " + _ipaddress + "-port:" + std::to_string(_port) + "\n";
+    // std::cout << "connected to " + _ipaddress + "-port:" + std::to_string(_port) + "\n";
+    /* prepare 2 threads to send and receive data with server */
+    send_thread = std::thread(&ClientTransporter::send_thread_func, this);
+    recv_thread = std::thread(&ClientTransporter::recv_thread_func, this);
 }
 
 /**
@@ -129,9 +128,8 @@ void ClientTransporter::recv_thread_func() {
 
         int bytercv = ::recv(client_fd, rcv_buf, BUF_SIZE, 0);
         rcv_buf[bytercv] = '\0';
-        rcv_buf[0] = '\0';
-
         // execute any registered task
         if (!receive_task) receive_task();
+        rcv_buf[0] = '\0';
     }
 }

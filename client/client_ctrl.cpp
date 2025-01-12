@@ -223,7 +223,6 @@ STATE_TYPE Client_Ctrl::Login_State::down() {
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::Login_State::select() {
-    std::string res;
     switch (_current_option) {
     case LOGIN_OPTION::USER_NAME:
         _client->_cli->erase_area(LOGIN_USERNAME_BOX.content.sector);
@@ -240,14 +239,20 @@ STATE_TYPE Client_Ctrl::Login_State::select() {
         _client->_cli->continue_ui();
         return STATE_NOCHANGE;
     case LOGIN_OPTION::SUBMIT:
+    {
+        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
         _client->_transporter->send_request(LOGIN " " + _user_name + " " + _password);
-        WAIT_MS(100);
-        res = _client->_received_mailbox->get_mailbox().back().content;
+        while(_client->_received_mailbox->number_of_mail() == prev_mail_number);
+        std::string res = _client->_received_mailbox->get_mailbox().back().content;
         if (res == LOGIN_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
         }
-        else return STATE_NOCHANGE;
+        else {
+            DEBUG_LOG("wrong username or password");
+            return STATE_NOCHANGE;
+        }
+    }
     case LOGIN_OPTION::CREATE_NEW_ACCOUNT:
         return STATE_REGISTATION;
     default:
@@ -348,7 +353,6 @@ STATE_TYPE Client_Ctrl::Register_State::down() {
 }
 
 STATE_TYPE Client_Ctrl::Register_State::select() {
-    std::string res;
     switch (_current_option) {
     case REGISTER_OPTION::USER_NAME:
         _client->_cli->erase_area(REGISTER_USERNAME_BOX.content.sector);
@@ -365,14 +369,20 @@ STATE_TYPE Client_Ctrl::Register_State::select() {
         _client->_cli->continue_ui();
         return STATE_NOCHANGE;
     case REGISTER_OPTION::SUBMIT:
+    {
+        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
         _client->_transporter->send_request(REGISTER " " + _user_name + " " + _password);
-        WAIT_MS(100);
-        res = _client->_received_mailbox->get_mailbox().back().content;
+        while (_client->_received_mailbox->number_of_mail() == prev_mail_number);
+        std::string res = _client->_received_mailbox->get_mailbox().back().content;
         if (res == REGISTER_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
         }
-        else return STATE_NOCHANGE;
+        else {
+            DEBUG_LOG("username has already existed");
+            return STATE_NOCHANGE;
+        }
+    }
     case REGISTER_OPTION::HAD_ACCOUNT:
         return STATE_LOGIN;
     default:

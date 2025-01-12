@@ -130,7 +130,5 @@ void ClientTransporter::recv_thread_func() {
         rcv_buf[bytercv] = '\0';
         // execute any registered task
         if (receive_task) receive_task();
-
-        rcv_buf[0] = '\0';
     }
 }

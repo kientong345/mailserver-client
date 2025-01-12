@@ -11,6 +11,7 @@ Client_Ctrl::Client_Ctrl()
   //_graphic(nullptr),
   _cli(nullptr),
   _current_mode(UI_MODE),
+  _login_succeed(false),
   _manager(this) {
 
 }
@@ -29,17 +30,11 @@ void Client_Ctrl::client_init() {
     _transporter->init();
     // _graphic->init();
     _cli->init();
+    _cli->display_allscreen({BACKGROUND_IMG, WHITE});
 }
 
 void Client_Ctrl::client_main() {
     _transporter->connect_to_server(SERVER_IP, SERVER_PORT);
-    /* to be change */
-    // ClientManager(this).set_state(STATE_LOGIN);
-    // std::string _my_name;
-    // std::cout << "enter your username: ";
-    // std::getline(std::cin, _my_name);
-    // _transporter->send_request(_my_name);
-    /* to be change */
     _transporter->set_task_on_receive_data([this](){
         std::string _rcv_mail = _transporter->receive_response();
         std::string _sender = getWord(_rcv_mail, 1);
@@ -98,51 +93,6 @@ void Client_Ctrl::command_handler() {
     _cli->display_entity(CMD_IMG); // clean cmd area
     req_t req = parseRequest(user_req);
     _manager.execute_request(req);
-}
-
-void Client_Ctrl::login() {
-    auto _login = [this](){
-        std::cout << "enter your user name: ";
-        std::string user_name;
-        std::getline(std::cin, user_name);
-        std::cout << "enter your password: ";
-        std::string user_pass;
-        std::getline(std::cin, user_pass);
-        _transporter->send_request("login " + user_name + " " + user_pass);
-
-        std::string res = _transporter->receive_response();
-        if (res == "succeed") return true;
-        else return false;
-    };
-    auto _register = [this](){
-        std::cout << "enter your user name: ";
-        std::string user_name;
-        std::getline(std::cin, user_name);
-        std::cout << "enter your password: ";
-        std::string user_pass;
-        std::getline(std::cin, user_pass);
-        _transporter->send_request("register " + user_name + " " + user_pass);
-
-        std::string res = _transporter->receive_response();
-        if (res == "succeed") return true;
-        else return false;
-    };
-    int option = 0;
-    while (1) {
-        std::cout << "type 0 to login, 1 to register: ";
-        std::cin >> option;
-        switch (option)
-        {
-        case 0:
-            if (_login()) return;
-            break;
-        case 1:
-            if (_register()) return;
-            break;
-        default:
-            break;
-        }
-    }
 }
 
 static Client_Ctrl _my_app;
@@ -239,7 +189,7 @@ void Client_Ctrl::Login_State::clear_indicator() {
 }
 
 void Client_Ctrl::Login_State::show() {
-    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    //_client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
     _client->_cli->display_entity(LOGIN_TEXT);
     _client->_cli->display_entity(LOGIN_USERNAME_TEXT);
     _client->_cli->display_entity(LOGIN_USERNAME_BOX);
@@ -291,8 +241,13 @@ STATE_TYPE Client_Ctrl::Login_State::select() {
         return STATE_NOCHANGE;
     case LOGIN_OPTION::SUBMIT:
         _client->_transporter->send_request(LOGIN " " + _user_name + " " + _password);
-        res = _client->_transporter->receive_response();
-        return (res == LOGIN_SUCCEED) ? STATE_MENU : STATE_NOCHANGE;
+        WAIT_MS(100);
+        res = _client->_received_mailbox->get_mailbox().back().content;
+        if (res == LOGIN_SUCCEED) {
+            _client->_login_succeed = true;
+            return STATE_MENU;
+        }
+        else return STATE_NOCHANGE;
     case LOGIN_OPTION::CREATE_NEW_ACCOUNT:
         return STATE_REGISTATION;
     default:
@@ -357,7 +312,7 @@ void Client_Ctrl::Register_State::clear_indicator() {
 }
 
 void Client_Ctrl::Register_State::show() {
-    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    //_client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
     _client->_cli->display_entity(REGISTER_TEXT);
     _client->_cli->display_entity(REGISTER_USERNAME_TEXT);
     _client->_cli->display_entity(REGISTER_USERNAME_BOX);
@@ -411,8 +366,13 @@ STATE_TYPE Client_Ctrl::Register_State::select() {
         return STATE_NOCHANGE;
     case REGISTER_OPTION::SUBMIT:
         _client->_transporter->send_request(REGISTER " " + _user_name + " " + _password);
-        res = _client->_transporter->receive_response();
-        return (res == REGISTER_SUCCEED) ? STATE_MENU : STATE_NOCHANGE;
+        WAIT_MS(100);
+        res = _client->_received_mailbox->get_mailbox().back().content;
+        if (res == REGISTER_SUCCEED) {
+            _client->_login_succeed = true;
+            return STATE_MENU;
+        }
+        else return STATE_NOCHANGE;
     case REGISTER_OPTION::HAD_ACCOUNT:
         return STATE_LOGIN;
     default:

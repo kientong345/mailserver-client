@@ -16,11 +16,11 @@ protected:
     ClientCLI* _cli;
 
     CTRL_MODE _current_mode;
+    bool _login_succeed;
 
     void user_handler();
     void ui_handler();
     void command_handler();
-    void login();
     
 public:
     Client_Ctrl();

@@ -84,15 +84,20 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     REQ_TYPE req_type = _request.first;
     if (req_type == REQ_LOGIN) {
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        if (*(_soft_database->get_client_password(content->first)) == content->second) {
+        const std::string* _correct_client_password = _soft_database->get_client_password(content->first);
+        if (!_correct_client_password) {
+            _transporter->response(mail_form("server", LOGIN_FAILED, __CURRENT_TIME__));
+            return E_LOGIN_FAILED; // client username not existed
+        }
+        if (*_correct_client_password == content->second) {
             _client_name = content->first;
             _soft_database->update_client_address(_client_name, _client_addr);
-            _transporter->response(LOGIN_SUCCEED);
+            _transporter->response(mail_form("server", LOGIN_SUCCEED, __CURRENT_TIME__));
             return E_LOGIN_SUCCEED;
         }
         else {
-            _transporter->response(LOGIN_FAILED);
-            return E_LOGIN_FAILED;
+            _transporter->response(mail_form("server", LOGIN_FAILED, __CURRENT_TIME__));
+            return E_LOGIN_FAILED; // wrong password
         }
     }
     else if (req_type == REQ_REGISTER) {
@@ -101,11 +106,11 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
             _client_name = content->first;
             std::string _client_password = content->second;
             _soft_database->save_client_info(_client_name, _client_password, _client_addr);
-            _transporter->response(REGISTER_SUCCEED);
+            _transporter->response(mail_form("server", REGISTER_SUCCEED, __CURRENT_TIME__));
             return E_REGISTER_SUCCEED;
         }
         else {
-            _transporter->response(REGISTER_FAILED);
+            _transporter->response(mail_form("server", REGISTER_FAILED, __CURRENT_TIME__));
             return E_REGISTER_FAILED;
         }
     }

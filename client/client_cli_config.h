@@ -18,7 +18,7 @@
 "                                                                                " \
 "                                                                                " \
 "                                                                                " \
-"                                                                                " \
+"================================================================================" \
 "                                                                                " \
 "================================================================================" \
 "command:                                                                        " \
@@ -39,6 +39,13 @@
         4 \
     } \
 }
+
+/* only use after init a CLientCLI object */
+#define DEBUG_LOG(TEXT)  \
+attron(COLOR_PAIR(YELLOW)); \
+mvprintw(17, 1, "%s", std::string(TEXT).c_str()); \
+attroff(COLOR_PAIR(YELLOW)); \
+refresh();
 
 #define INDICATOR(POS)  \
 (text) { \

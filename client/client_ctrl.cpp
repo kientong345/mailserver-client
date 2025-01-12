@@ -189,7 +189,7 @@ void Client_Ctrl::Login_State::clear_indicator() {
 }
 
 void Client_Ctrl::Login_State::show() {
-    //_client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
     _client->_cli->display_entity(LOGIN_TEXT);
     _client->_cli->display_entity(LOGIN_USERNAME_TEXT);
     _client->_cli->display_entity(LOGIN_USERNAME_BOX);
@@ -312,7 +312,7 @@ void Client_Ctrl::Register_State::clear_indicator() {
 }
 
 void Client_Ctrl::Register_State::show() {
-    //_client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
     _client->_cli->display_entity(REGISTER_TEXT);
     _client->_cli->display_entity(REGISTER_USERNAME_TEXT);
     _client->_cli->display_entity(REGISTER_USERNAME_BOX);

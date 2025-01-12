@@ -276,12 +276,18 @@ STATE_TYPE Client_Ctrl::Login_State::select() {
     std::string res;
     switch (_current_option) {
     case LOGIN_OPTION::USER_NAME:
-        // move edit position to usrname region
-        // wait user to input usrname
+        _client->_cli->erase_area(LOGIN_USERNAME_BOX.content.sector);
+        _client->_cli->pause_ui();
+        _user_name = std::move(_client->_cli->get_user_cmd(LOGIN_USERNAME_BOX.content.sector.base.xPos,
+                                                        LOGIN_USERNAME_BOX.content.sector.base.yPos));
+        _client->_cli->continue_ui();
         return STATE_NOCHANGE;
     case LOGIN_OPTION::PASSWORD:
-        // move edit position to pass region
-        // wait user to input pass
+        _client->_cli->erase_area(LOGIN_PASSWORD_BOX.content.sector);
+        _client->_cli->pause_ui();
+        _password = std::move(_client->_cli->get_user_cmd(LOGIN_PASSWORD_BOX.content.sector.base.xPos,
+                                                        LOGIN_PASSWORD_BOX.content.sector.base.yPos));
+        _client->_cli->continue_ui();
         return STATE_NOCHANGE;
     case LOGIN_OPTION::SUBMIT:
         _client->_transporter->send_request(LOGIN " " + _user_name + " " + _password);
@@ -390,12 +396,18 @@ STATE_TYPE Client_Ctrl::Register_State::select() {
     std::string res;
     switch (_current_option) {
     case REGISTER_OPTION::USER_NAME:
-        // move edit position to usrname region
-        // wait user to input usrname
+        _client->_cli->erase_area(REGISTER_USERNAME_BOX.content.sector);
+        _client->_cli->pause_ui();
+        _user_name = std::move(_client->_cli->get_user_cmd(REGISTER_USERNAME_BOX.content.sector.base.xPos,
+                                                        REGISTER_USERNAME_BOX.content.sector.base.yPos));
+        _client->_cli->continue_ui();
         return STATE_NOCHANGE;
     case REGISTER_OPTION::PASSWORD:
-        // move edit position to pass region
-        // wait user to input pass
+        _client->_cli->erase_area(REGISTER_PASSWORD_BOX.content.sector);
+        _client->_cli->pause_ui();
+        _password = std::move(_client->_cli->get_user_cmd(REGISTER_PASSWORD_BOX.content.sector.base.xPos,
+                                                        REGISTER_PASSWORD_BOX.content.sector.base.yPos));
+        _client->_cli->continue_ui();
         return STATE_NOCHANGE;
     case REGISTER_OPTION::SUBMIT:
         _client->_transporter->send_request(REGISTER " " + _user_name + " " + _password);

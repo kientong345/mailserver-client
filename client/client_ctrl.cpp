@@ -89,7 +89,7 @@ void Client_Ctrl::ui_handler() {
 }
 
 void Client_Ctrl::command_handler() {
-    std::string user_req = _cli->get_user_cmd(10, 19);
+    std::string user_req = _cli->get_user_cmd(4, 19);
     _cli->display_entity(CMD_IMG); // clean cmd area
     req_t req = parseRequest(user_req);
     _manager.execute_request(req);
@@ -120,12 +120,12 @@ Client_Ctrl::State::State(Client_Ctrl* _target)
 
 STATE_TYPE Client_Ctrl::State::execute_request(const req_t& _request) {
     REQ_TYPE req_type = _request.first;
-    if (req_type == REQ_TOSERVER) {
-        std::string _message = *(static_cast<std::string*>(_request.second.get()));
-        _client->_transporter->send_request(_message);
+    if (/* req_type == REQ_TOSERVER */0) {
+        // std::string _message = *(static_cast<std::string*>(_request.second.get()));
+        // _client->_transporter->send_request(_message);
         return STATE_NOCHANGE;
     }
-    else if (req_type == REQ_SHOWCHAT) {
+    else if (/* req_type == REQ_SHOWCHAT */0) {
         // ???
         return STATE_NOCHANGE;
     }
@@ -268,6 +268,22 @@ STATE_TYPE Client_Ctrl::Login_State::execute_specific_request(const req_t& _requ
         return down();
     case REQ_SELECT:
         return select();
+    case REQ_LOGIN:
+    {
+        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
+        auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
+        _client->_transporter->send_request(LOGIN " " + content->first + " " + content->second);
+        while(_client->_received_mailbox->number_of_mail() == prev_mail_number);
+        std::string res = _client->_received_mailbox->get_mailbox().back().content;
+        if (res == LOGIN_SUCCEED) {
+            _client->_login_succeed = true;
+            return STATE_MENU;
+        }
+        else {
+            DEBUG_LOG("wrong username or password");
+            return STATE_NOCHANGE;
+        }
+    }
     default:
         return STATE_NOCHANGE;
     }
@@ -399,6 +415,22 @@ STATE_TYPE Client_Ctrl::Register_State::execute_specific_request(const req_t& _r
         return down();
     case REQ_SELECT:
         return select();
+    case REQ_REGISTER:
+    {
+        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
+        auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
+        _client->_transporter->send_request(REGISTER " " + content->first + " " + content->second);
+        while(_client->_received_mailbox->number_of_mail() == prev_mail_number);
+        std::string res = _client->_received_mailbox->get_mailbox().back().content;
+        if (res == REGISTER_SUCCEED) {
+            _client->_login_succeed = true;
+            return STATE_MENU;
+        }
+        else {
+            DEBUG_LOG("username has already existed");
+            return STATE_NOCHANGE;
+        }
+    }
     default:
         return STATE_NOCHANGE;
     }
@@ -502,6 +534,7 @@ STATE_TYPE Client_Ctrl::Menu_State::execute_specific_request(const req_t& _reque
     REQ_TYPE req_type = _request.first;
     switch (req_type) {
     case REQ_LOGOUT:
+    case REQ_LEFT:
         return left();
     case REQ_UP:
         return up();

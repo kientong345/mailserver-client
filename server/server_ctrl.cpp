@@ -115,8 +115,8 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         }
     }
     else if (req_type == REQ_LOGOUT) {
-        return E_TERM;
-        // verify_account();
+        //return E_TERM;
+        verify_account();
     }
     else if (req_type == REQ_SENDTO) {
         // sorry for garbage code!

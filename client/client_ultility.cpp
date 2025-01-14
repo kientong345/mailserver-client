@@ -14,8 +14,8 @@ req_t parseRequest(const std::string& _message) {
     req_t req;
     std::string req_type = getWord(_message, 1);
 
-    if ((req_type == LOGIN) ||
-        (req_type == REGISTER) ||
+    if (//(req_type == LOGIN) ||
+        //(req_type == REGISTER) ||
         (req_type == SENDTO) ||
         (req_type == DELETEMAIL) ||
         (req_type == CHANGENAME) ||
@@ -56,6 +56,18 @@ req_t parseRequest(const std::string& _message) {
     }
     else if (req_type == INPUT_SWITCH) {
         req.first = REQ_SWITCH;
+        req.second = nullptr;
+    }
+    else if (req_type == LOGIN) {
+        req.first = REQ_LOGIN;
+        req.second = std::make_shared<std::pair<std::string, std::string>>(getWord(_message, 2), getWord(_message, 3));
+    }
+    else if (req_type == REGISTER) {
+        req.first = REQ_REGISTER;
+        req.second = std::make_shared<std::pair<std::string, std::string>>(getWord(_message, 2), getWord(_message, 3));
+    }
+    else if (req_type == LOGOUT) {
+        req.first = REQ_LOGOUT;
         req.second = nullptr;
     }
     else { // unidentify request

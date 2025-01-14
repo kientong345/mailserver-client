@@ -288,4 +288,87 @@ refresh();
     } \
 }
 
+/* ================================MENU SCREEN=============================== */
+
+#define MENU_IND_POS_1  \
+(area) { \
+    {16, 7}, \
+    2, \
+    1 \
+}
+
+#define MENU_IND_POS_2  \
+(area) { \
+    {16, 9}, \
+    2, \
+    1 \
+}
+
+#define MENU_IND_POS_3  \
+(area) { \
+    {30, 12}, \
+    2, \
+    1 \
+}
+
+#define MENU_IND_POS_4  \
+(area) { \
+    {27, 14}, \
+    2, \
+    1 \
+}
+
+#define MENU_IND_POS_5  \
+(area) { \
+    {27, 14}, \
+    2, \
+    1 \
+}
+
+#define MENU_TEXT  \
+(image) { \
+    "============\n" \
+    "    menu\n" \
+    "============", \
+    MAGENTA, \
+    { \
+        {34, 3}, \
+        20, \
+        3 \
+    } \
+}
+
+#define MENU_SELECT_TABLE  \
+(image) { \
+    "  _____________ \n" \
+    " | Friend List |\n" \
+    "    _________   \n" \
+    "   | Setting |  \n" \
+    " ______________ \n" \
+    "| Instructions |\n" \
+    "     ______     \n" \
+    "    | Info |    \n" \
+    "     ______     \n" \
+    "    | Exit |    \n",
+    MAGENTA, \
+    { \
+        {34, 3}, \
+        20, \
+        3 \
+    } \
+}
+
+#define MENU_LOGOUT_BUTTON  \
+(image) { \
+    " .==========\n" \
+    "<<  Logout  \n" \
+    " '==========\n",
+    MAGENTA, \
+    { \
+        {34, 3}, \
+        20, \
+        3 \
+    } \
+}
+
 #endif /* __CLIENT_CLI_CONFIG_H__ */

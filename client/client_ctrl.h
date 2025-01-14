@@ -156,6 +156,7 @@ public:
         };
         MENU_OPTION _current_option;
         void update_indicator();
+        void clear_indicator();
     public:
         Menu_State(Client_Ctrl* _target);
         ~Menu_State() = default;

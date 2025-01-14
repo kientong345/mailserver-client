@@ -409,8 +409,56 @@ Client_Ctrl::Menu_State::Menu_State(Client_Ctrl* _target)
 
 }
 
+void Client_Ctrl::Menu_State::update_indicator() {
+    switch (_current_option) {
+    case MENU_OPTION::FRIENDLIST:
+        _client->_cli->display_entity(INDICATOR(MENU_IND_POS_1));
+        break;
+    case MENU_OPTION::SETTING:
+        _client->_cli->display_entity(INDICATOR(MENU_IND_POS_2));
+        break;
+    case MENU_OPTION::INSTRUCTIONS:
+        _client->_cli->display_entity(INDICATOR(MENU_IND_POS_3));
+        break;
+    case MENU_OPTION::INFO:
+        _client->_cli->display_entity(INDICATOR(MENU_IND_POS_4));
+        break;
+    case MENU_OPTION::EXIT:
+        _client->_cli->display_entity(INDICATOR(MENU_IND_POS_5));
+        break;
+    default:
+        break;
+    }
+}
+        
+void Client_Ctrl::Menu_State::clear_indicator() {
+    switch (_current_option) {
+    case MENU_OPTION::FRIENDLIST:
+        _client->_cli->erase_area(MENU_IND_POS_1);
+        break;
+    case MENU_OPTION::SETTING:
+        _client->_cli->erase_area(MENU_IND_POS_2);
+        break;
+    case MENU_OPTION::INSTRUCTIONS:
+        _client->_cli->erase_area(MENU_IND_POS_3);
+        break;
+    case MENU_OPTION::INFO:
+        _client->_cli->erase_area(MENU_IND_POS_4);
+        break;
+    case MENU_OPTION::EXIT:
+        _client->_cli->erase_area(MENU_IND_POS_5);
+        break;
+    default:
+        break;
+    }
+}
+
 void Client_Ctrl::Menu_State::show() {
-    //_client->_graphic->display_allscreen(MENU_BACKGROUND_PATH);
+    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_entity(MENU_TEXT);
+    _client->_cli->display_entity(MENU_SELECT_TABLE);
+    _client->_cli->display_entity(MENU_LOGOUT_BUTTON);
+    update_indicator();
 }
 STATE_TYPE Client_Ctrl::Menu_State::left() {
     _client->_transporter->send_request(LOGOUT);
@@ -420,13 +468,17 @@ STATE_TYPE Client_Ctrl::Menu_State::right() {
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::Menu_State::up() {
+    clear_indicator();
     if (_current_option == MENU_OPTION::FRIENDLIST) _current_option = MENU_OPTION::EXIT;
     else _current_option = static_cast<MENU_OPTION>(static_cast<uint8_t>(_current_option)-1);
+    update_indicator();
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::Menu_State::down() {
+    clear_indicator();
     if (_current_option == MENU_OPTION::EXIT) _current_option = MENU_OPTION::FRIENDLIST;
     else _current_option = static_cast<MENU_OPTION>(static_cast<uint8_t>(_current_option)+1);
+    update_indicator();
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::Menu_State::select() {

@@ -73,6 +73,20 @@ const std::vector<received_mail>* Database::get_received_mailbox(const std::stri
 }
 
 /**
+ * @brief get user list
+ * @return user vector, which contain username and status(online/offline)
+ */
+const std::vector<std::pair<std::string, USER_STATUS>> Database::get_user_list() const {
+    std::vector<std::pair<std::string, USER_STATUS>> ret;
+    auto it = client_table->begin();
+    while (it != client_table->end()) {
+        ret.emplace_back(it->first, it->second->status);
+        ++it;
+    }
+    return ret;
+}
+
+/**
  * @brief check if a client name has been taken or not
  * @param client_name: name of the client
  * @return checking result

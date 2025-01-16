@@ -3,9 +3,11 @@
 
 #include "client_inc.h"
 #include <string>
+#include <jsoncpp/json/json.h>
 
 req_t parseRequest(const std::string& _message);
 std::string getWord(const std::string& _sentence, uint8_t _wordpos);
 std::string get_std_time(uint64_t unix_timestamp);
+Json::Value string_to_json(const std::string& _data);
 
 #endif /* __CLIENT_ULTILITY_H__ */

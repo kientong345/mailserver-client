@@ -188,6 +188,10 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
         std::string new_pass = *(static_cast<std::string*>(_request.second.get()));
         _soft_database->update_client_password(_client_name, new_pass);
     }
+    else if (req_type == REQ_GIVEMEUSERLIST) {
+        auto _userlist = data_to_json(_soft_database->get_user_list());
+        _transporter->response(json_mail_form("server", _userlist, __CURRENT_TIME__));
+    }
     else { // req_type == REQ_UNIDENTIFY
         std::string this_req = *(static_cast<std::string*>(_request.second.get()));
         std::cout << "unidentified request: \'" + this_req + "\'\n";

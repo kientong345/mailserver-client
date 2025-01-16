@@ -70,6 +70,10 @@ req_t parseRequest(const std::string& _message) {
         req.first = REQ_LOGOUT;
         req.second = nullptr;
     }
+    else if (req_type == GIVEMEUSERLIST) {
+        req.first = REQ_GIVEMEUSERLIST;
+        req.second = nullptr;
+    }
     else { // unidentify request
         req.first = REQ_UNIDENTIFY;
         req.second = std::move(std::make_shared<std::string>(_message));
@@ -116,7 +120,7 @@ std::string getWord(const std::string& _sentence, uint8_t _wordpos) {
 
 /**
  * @brief get standard time from unix timestamp
- * @param unix_timestamp: epoch time from 1970
+ * @param unix_timestamp: epoch time since 1970
  * @return current date/time... from epoch time
  */
 std::string get_std_time(uint64_t unix_timestamp) {
@@ -125,4 +129,16 @@ std::string get_std_time(uint64_t unix_timestamp) {
     std::ostringstream oss;
     oss << std::put_time(local_time, "%c");
     return oss.str();
+}
+
+/**
+ * @brief convert a json string into json type
+ * @param _jsonstring: json string to be converted
+ * @return json-type value
+ */
+Json::Value string_to_json(const std::string& _jsonstring) {
+    Json::Value ret;
+    Json::Reader jsonrd;
+    jsonrd.parse(_jsonstring, ret);
+    return ret;
 }

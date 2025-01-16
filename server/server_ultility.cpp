@@ -67,6 +67,10 @@ req_t parseRequest(const std::string& _message) {
         req.first = REQ_CHANGEPASSWORD;
         req.second = std::make_shared<std::string>(getWord(_message, 2));
     }
+    else if (req_type == GIVEMEUSERLIST) {
+        req.first = REQ_GIVEMEUSERLIST;
+        req.second = nullptr;
+    }
     else { // unidentify request
         req.first = REQ_UNIDENTIFY;
         req.second = std::move(std::make_shared<std::string>(_message));
@@ -111,6 +115,13 @@ std::string getWord(const std::string& _sentence, uint8_t _wordpos) {
     return word;
 }
 
+/**
+ * @brief get a standard mail-form message from given content and info
+ * @param _sender: the sender of the mail
+ * @param _content: mail content
+ * @param _sent_time: sent time
+ * @return standard mail-form string
+ */
 std::string mail_form(const std::string& _sender, const std::string& _content, const std::string& _sent_time) {
     std::string ret("");
     ret += "\'";
@@ -118,5 +129,39 @@ std::string mail_form(const std::string& _sender, const std::string& _content, c
     ret += _content; ret += "\' ";
     ret += _sent_time;
 
+    return ret;
+}
+
+/**
+ * @brief get a standard mail-form message from given json-content and info
+ * @param _sender: the sender of the mail
+ * @param _content: mail json-content
+ * @param _sent_time: sent time
+ * @return standard mail-form string
+ */
+std::string json_mail_form(const std::string& _sender, const Json::Value& _content, const std::string& _sent_time) {
+    std::string ret("");
+    Json::StreamWriterBuilder _jsonwr;
+    ret += "\'";
+    ret += _sender; ret += "\' \'";
+    ret += Json::writeString(_jsonwr, _content); ret += "\' ";
+    ret += _sent_time;
+
+    return ret;
+}
+
+/**
+ * @brief parse a data block to json-type
+ * @param _userlist: the data block in vector<pair> form
+ * @return json-type from data block
+ */
+Json::Value data_to_json(const std::vector<std::pair<std::string, USER_STATUS>>& _userlist) {
+    Json::Value ret;
+    for (const auto& _usr : _userlist) {
+        Json::Value elm;
+        elm["username"] = _usr.first;
+        elm["state"] = static_cast<uint8_t>(_usr.second);
+        ret.append(elm);
+    }
     return ret;
 }

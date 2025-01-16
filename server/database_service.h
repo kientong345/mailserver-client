@@ -30,6 +30,7 @@ public:
     const struct sockaddr_in* get_client_addr(const std::string& client_name) const;
     const std::vector<sent_mail>* get_sent_mailbox(const std::string& client_name) const;
     const std::vector<received_mail>* get_received_mailbox(const std::string& client_name) const;
+    const std::vector<std::pair<std::string, USER_STATUS>> get_user_list() const;
 
     bool client_name_exist(const std::string& client_name) const;
     const shm_map* get_client_table() const;

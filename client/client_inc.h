@@ -46,6 +46,7 @@
 #define TERMINATE               "term"
 #define WHATISMYNAME            "whatismyname"
 #define CHANGEPASSWORD          "changepassword"
+#define GIVEMEUSERLIST          "givemeuserlist"
 #define TOSERVER                "toserver"
 #define SHOWCHAT                "showchat"
 #define INPUT_LEFT              "left"
@@ -68,6 +69,7 @@ typedef enum {
     REQ_TERMINATE,
     REQ_WHATISMYNAME,
     REQ_CHANGEPASSWORD,
+    REQ_GIVEMEUSERLIST,
     REQ_TOSERVER,
     /* client request */
     REQ_SHOWCHAT,

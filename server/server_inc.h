@@ -27,6 +27,7 @@
 #define TERMINATE                      "term"
 #define WHATISMYNAME                   "whatismyname"
 #define CHANGEPASSWORD                 "changepassword"
+#define GIVEMEUSERLIST                 "givemeuserlist"
 
 #define SENT_MAILBOX                   "sent_mailbox"
 #define RCV_MAILBOX                    "received_mailbox"
@@ -48,7 +49,8 @@ typedef enum {
     REQ_SEARCH,        /* req to search on client table */
     REQ_TERMINATE,     /* terminate connect req(with server) */
     REQ_WHATISMYNAME,   /* response the name of requester */
-    REQ_CHANGEPASSWORD
+    REQ_CHANGEPASSWORD,
+    REQ_GIVEMEUSERLIST
 } REQ_TYPE;
 
 typedef enum {

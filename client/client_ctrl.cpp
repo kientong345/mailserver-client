@@ -95,6 +95,18 @@ void Client_Ctrl::command_handler() {
     _manager.execute_request(req);
 }
 
+/**
+ * @brief send a request to server and wait the response
+ * @param _request: request to be sent
+ * @return the response from server
+ */
+std::string send_request_wait_response(const std::string& _request) {
+    uint16_t prev_mail_number = _received_mailbox->number_of_mail();
+    _transporter->send_request(TOSERVER " \'" + _request + "\'");
+    while(_received_mailbox->number_of_mail() == prev_mail_number);
+    return _received_mailbox->get_mailbox().back().content;
+}
+
 static Client_Ctrl _my_app;
 
 void sigtermhandler(int signo) {
@@ -240,10 +252,7 @@ STATE_TYPE Client_Ctrl::Login_State::select() {
         return STATE_NOCHANGE;
     case LOGIN_OPTION::SUBMIT:
     {
-        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
-        _client->_transporter->send_request(LOGIN " " + _user_name + " " + _password);
-        while(_client->_received_mailbox->number_of_mail() == prev_mail_number);
-        std::string res = _client->_received_mailbox->get_mailbox().back().content;
+        std::string res = _client->send_request_wait_response(LOGIN " " + _user_name + " " + _password);
         if (res == LOGIN_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
@@ -270,11 +279,8 @@ STATE_TYPE Client_Ctrl::Login_State::execute_specific_request(const req_t& _requ
         return select();
     case REQ_LOGIN:
     {
-        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        _client->_transporter->send_request(LOGIN " " + content->first + " " + content->second);
-        while(_client->_received_mailbox->number_of_mail() == prev_mail_number);
-        std::string res = _client->_received_mailbox->get_mailbox().back().content;
+        std::string res = _client->send_request_wait_response(LOGIN " " + content->first + " " + content->second);
         if (res == LOGIN_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
@@ -386,10 +392,7 @@ STATE_TYPE Client_Ctrl::Register_State::select() {
         return STATE_NOCHANGE;
     case REGISTER_OPTION::SUBMIT:
     {
-        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
-        _client->_transporter->send_request(REGISTER " " + _user_name + " " + _password);
-        while (_client->_received_mailbox->number_of_mail() == prev_mail_number);
-        std::string res = _client->_received_mailbox->get_mailbox().back().content;
+        std::string res = _client->send_request_wait_response(REGISTER " " + _user_name + " " + _password);
         if (res == REGISTER_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
@@ -417,11 +420,8 @@ STATE_TYPE Client_Ctrl::Register_State::execute_specific_request(const req_t& _r
         return select();
     case REQ_REGISTER:
     {
-        uint16_t prev_mail_number = _client->_received_mailbox->number_of_mail();
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        _client->_transporter->send_request(REGISTER " " + content->first + " " + content->second);
-        while(_client->_received_mailbox->number_of_mail() == prev_mail_number);
-        std::string res = _client->_received_mailbox->get_mailbox().back().content;
+        std::string res = _client->send_request_wait_response(REGISTER " " + content->first + " " + content->second);
         if (res == REGISTER_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;

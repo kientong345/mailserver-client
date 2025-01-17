@@ -21,6 +21,7 @@ protected:
     void user_handler();
     void ui_handler();
     void command_handler();
+    std::string send_request_wait_response(const std::string& _request);
     
 public:
     Client_Ctrl();

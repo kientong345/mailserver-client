@@ -31,13 +31,14 @@
 
 #define CMD_IMG  \
 (image) { \
+    "===============================================================================\n" \
     " $:                                                                            \n" \
     "                                                                               \n" \
     "                                                                               \n" \
     "                                                                               \n", \
-    WHITE, \
+    GREEN, \
     { \
-        {0, 19}, \
+        {0, 18}, \
         79, \
         4 \
     } \
@@ -174,6 +175,8 @@ refresh();
     } \
 }
 
+#define LOGIN_INIT_SCREEN     (LOGIN_TEXT), (LOGIN_USERNAME_TEXT), (LOGIN_USERNAME_BOX), (LOGIN_PASSWORD_TEXT), (LOGIN_PASSWORD_BOX), (LOGIN_SUBMIT_BOX), (LOGIN_QUESTION), (CMD_IMG)
+
 /* ================================REGISTER SCREEN=============================== */
 #define REGISTER_IND_POS_1  \
 (area) { \
@@ -291,6 +294,9 @@ refresh();
     } \
 }
 
+#define REGISTER_INIT_SCREEN     (REGISTER_TEXT), (REGISTER_USERNAME_TEXT), (REGISTER_USERNAME_BOX), (REGISTER_PASSWORD_TEXT), (REGISTER_PASSWORD_BOX), (REGISTER_SUBMIT_BOX), (REGISTER_QUESTION), (CMD_IMG)
+
+
 /* ================================MENU SCREEN=============================== */
 
 #define MENU_IND_POS_1  \
@@ -366,7 +372,7 @@ refresh();
     " .==========\n" \
     "<<  Logout  \n" \
     " '==========\n", \
-    BLUE, \
+    YELLOW, \
     { \
         {2, 13}, \
         20, \
@@ -374,12 +380,14 @@ refresh();
     } \
 }
 
+#define MENU_INIT_SCREEN    (MENU_TEXT), (MENU_SELECT_TABLE), (MENU_LOGOUT_BUTTON), (CMD_IMG)
+
 /* ================================FRIENDLIST SCREEN=============================== */
 
 #define FRIENDLIST_SCREEN  \
 (background) { \
     "================================================================================" \
-    " ||                        ||   YOUR FRIEND LIST   ||                        || " \
+    " || << Back                ||   YOUR FRIEND LIST   ||                Next >> || " \
     " | >  ===================  <<___      ++++      ___>>  ===================  < | " \
     " ||           User name       '=================='                   Status  || " \
     " | >---<+>--------------------------------------------------------<+>-------< | " \
@@ -394,14 +402,10 @@ refresh();
     " ||     |                                                          |         || " \
     " | >---<+>--------------------------------------------------------<+>-------< | " \
     " ||     |                                                          |         || " \
-    "================================================================================" \
-    "                                                                                " \
-    "================================================================================" \
-    " $:                                                                             " \
-    "                                                                                " \
-    "                                                                                " \
-    "                                                                                ", \
-    WHITE \
+    "================================================================================", \
+    CYAN \
 }
+
+#define FRIENDLIST_INIT_SCREEN    (CMD_IMG)
 
 #endif /* __CLIENT_CLI_CONFIG_H__ */

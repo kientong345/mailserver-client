@@ -127,6 +127,14 @@ void ClientCLI::display_entity(const textbox& _textbox) {
     display_entity(_textbox.content);
 }
 
+// template<typename T, typename... Args>
+// void ClientCLI::display_multiple_entity(const T& _first, const Args&... _rest) {
+//     display_entity(_first);
+//     if constexpr (sizeof...(_rest) > 0) {
+//         display_multiple_entity(_rest...);
+//     }
+// }
+
 void ClientCLI::erase_area(const area& _region) {
     const std::string empty_line(_region.horizontal_length, ' ');
     for (int y_offset = 0; y_offset < _region.vertical_length; ++y_offset) {

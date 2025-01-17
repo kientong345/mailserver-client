@@ -22,6 +22,14 @@ public:
     void display_entity(const text& _text);
     void display_entity(const textbox& _textbox);
 
+    template<typename T, typename... Args>
+    void display_multiple_entity(const T& _first, const Args&... _rest) {
+        display_entity(_first);
+        if constexpr (sizeof...(_rest) > 0) {
+            display_multiple_entity(_rest...);
+        }
+    }
+
     // void update_entity(const image& _old_img, const image& _new_img);
     // void update_entity(const text& _old_text, const text& _new_text);
     // void update_entity(const textbox& _old_textbox, const textbox& _new_textbox);

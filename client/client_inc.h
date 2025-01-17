@@ -108,6 +108,11 @@ typedef enum {
     UI_MODE
 } CTRL_MODE;
 
+typedef enum {
+    OFFLINE,
+    ONLINE
+} USER_STATUS;
+
 struct sent_mail {
     std::string receiver;
     std::string content;

@@ -202,13 +202,7 @@ void Client_Ctrl::Login_State::clear_indicator() {
 
 void Client_Ctrl::Login_State::show() {
     _client->_cli->display_allscreen(BACKGROUND_IMG);
-    _client->_cli->display_entity(LOGIN_TEXT);
-    _client->_cli->display_entity(LOGIN_USERNAME_TEXT);
-    _client->_cli->display_entity(LOGIN_USERNAME_BOX);
-    _client->_cli->display_entity(LOGIN_PASSWORD_TEXT);
-    _client->_cli->display_entity(LOGIN_PASSWORD_BOX);
-    _client->_cli->display_entity(LOGIN_SUBMIT_BOX);
-    _client->_cli->display_entity(LOGIN_QUESTION);
+    _client->_cli->display_multiple_entity(LOGIN_INIT_SCREEN);
     update_indicator();
 }
 
@@ -340,13 +334,7 @@ void Client_Ctrl::Register_State::clear_indicator() {
 
 void Client_Ctrl::Register_State::show() {
     _client->_cli->display_allscreen(BACKGROUND_IMG);
-    _client->_cli->display_entity(REGISTER_TEXT);
-    _client->_cli->display_entity(REGISTER_USERNAME_TEXT);
-    _client->_cli->display_entity(REGISTER_USERNAME_BOX);
-    _client->_cli->display_entity(REGISTER_PASSWORD_TEXT);
-    _client->_cli->display_entity(REGISTER_PASSWORD_BOX);
-    _client->_cli->display_entity(REGISTER_SUBMIT_BOX);
-    _client->_cli->display_entity(REGISTER_QUESTION);
+    _client->_cli->display_multiple_entity(REGISTER_INIT_SCREEN);
     update_indicator();
 }
 
@@ -487,9 +475,7 @@ void Client_Ctrl::Menu_State::clear_indicator() {
 
 void Client_Ctrl::Menu_State::show() {
     _client->_cli->display_allscreen(BACKGROUND_IMG);
-    _client->_cli->display_entity(MENU_TEXT);
-    _client->_cli->display_entity(MENU_SELECT_TABLE);
-    _client->_cli->display_entity(MENU_LOGOUT_BUTTON);
+    _client->_cli->display_multiple_entity(MENU_INIT_SCREEN);
     update_indicator();
 }
 STATE_TYPE Client_Ctrl::Menu_State::left() {
@@ -555,6 +541,7 @@ Client_Ctrl::FriendList_State::FriendList_State(Client_Ctrl* _target)
 void Client_Ctrl::FriendList_State::show() {
     std::string _usr_list = std::move(_client->send_request_wait_response(GIVEMEUSERLIST));
     _client->_cli->display_allscreen(FRIENDLIST_SCREEN);
+    _client->_cli->display_multiple_entity(FRIENDLIST_INIT_SCREEN);
 }
 STATE_TYPE Client_Ctrl::FriendList_State::left() {
     return STATE_MENU;

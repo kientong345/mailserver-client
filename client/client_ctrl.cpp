@@ -30,7 +30,7 @@ void Client_Ctrl::client_init() {
     _transporter->init();
     // _graphic->init();
     _cli->init();
-    _cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _cli->display_allscreen(BACKGROUND_IMG);
 }
 
 void Client_Ctrl::client_main() {
@@ -100,9 +100,9 @@ void Client_Ctrl::command_handler() {
  * @param _request: request to be sent
  * @return the response from server
  */
-std::string send_request_wait_response(const std::string& _request) {
+std::string Client_Ctrl::send_request_wait_response(const std::string& _request) {
     uint16_t prev_mail_number = _received_mailbox->number_of_mail();
-    _transporter->send_request(TOSERVER " \'" + _request + "\'");
+    _transporter->send_request(_request);
     while(_received_mailbox->number_of_mail() == prev_mail_number);
     return _received_mailbox->get_mailbox().back().content;
 }
@@ -201,7 +201,7 @@ void Client_Ctrl::Login_State::clear_indicator() {
 }
 
 void Client_Ctrl::Login_State::show() {
-    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_allscreen(BACKGROUND_IMG);
     _client->_cli->display_entity(LOGIN_TEXT);
     _client->_cli->display_entity(LOGIN_USERNAME_TEXT);
     _client->_cli->display_entity(LOGIN_USERNAME_BOX);
@@ -252,7 +252,7 @@ STATE_TYPE Client_Ctrl::Login_State::select() {
         return STATE_NOCHANGE;
     case LOGIN_OPTION::SUBMIT:
     {
-        std::string res = _client->send_request_wait_response(LOGIN " " + _user_name + " " + _password);
+        std::string res = std::move(_client->send_request_wait_response(LOGIN " " + _user_name + " " + _password));
         if (res == LOGIN_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
@@ -280,7 +280,7 @@ STATE_TYPE Client_Ctrl::Login_State::execute_specific_request(const req_t& _requ
     case REQ_LOGIN:
     {
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        std::string res = _client->send_request_wait_response(LOGIN " " + content->first + " " + content->second);
+        std::string res = std::move(_client->send_request_wait_response(LOGIN " " + content->first + " " + content->second));
         if (res == LOGIN_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
@@ -339,7 +339,7 @@ void Client_Ctrl::Register_State::clear_indicator() {
 }
 
 void Client_Ctrl::Register_State::show() {
-    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_allscreen(BACKGROUND_IMG);
     _client->_cli->display_entity(REGISTER_TEXT);
     _client->_cli->display_entity(REGISTER_USERNAME_TEXT);
     _client->_cli->display_entity(REGISTER_USERNAME_BOX);
@@ -392,7 +392,7 @@ STATE_TYPE Client_Ctrl::Register_State::select() {
         return STATE_NOCHANGE;
     case REGISTER_OPTION::SUBMIT:
     {
-        std::string res = _client->send_request_wait_response(REGISTER " " + _user_name + " " + _password);
+        std::string res = std::move(_client->send_request_wait_response(REGISTER " " + _user_name + " " + _password));
         if (res == REGISTER_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
@@ -421,7 +421,7 @@ STATE_TYPE Client_Ctrl::Register_State::execute_specific_request(const req_t& _r
     case REQ_REGISTER:
     {
         auto content = static_cast<std::pair<std::string, std::string>*>(_request.second.get());
-        std::string res = _client->send_request_wait_response(REGISTER " " + content->first + " " + content->second);
+        std::string res = std::move(_client->send_request_wait_response(REGISTER " " + content->first + " " + content->second));
         if (res == REGISTER_SUCCEED) {
             _client->_login_succeed = true;
             return STATE_MENU;
@@ -486,7 +486,7 @@ void Client_Ctrl::Menu_State::clear_indicator() {
 }
 
 void Client_Ctrl::Menu_State::show() {
-    _client->_cli->display_allscreen({BACKGROUND_IMG, WHITE});
+    _client->_cli->display_allscreen(BACKGROUND_IMG);
     _client->_cli->display_entity(MENU_TEXT);
     _client->_cli->display_entity(MENU_SELECT_TABLE);
     _client->_cli->display_entity(MENU_LOGOUT_BUTTON);
@@ -553,7 +553,8 @@ Client_Ctrl::FriendList_State::FriendList_State(Client_Ctrl* _target)
 }
 
 void Client_Ctrl::FriendList_State::show() {
-
+    std::string _usr_list = std::move(_client->send_request_wait_response(GIVEMEUSERLIST));
+    _client->_cli->display_allscreen(FRIENDLIST_SCREEN);
 }
 STATE_TYPE Client_Ctrl::FriendList_State::left() {
     return STATE_MENU;

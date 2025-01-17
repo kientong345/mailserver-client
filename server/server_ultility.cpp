@@ -2,6 +2,7 @@
 #include <sstream>
 #include <tuple>
 #include <memory>
+#include <iostream>
 
 /**
  * @brief get a unique key from given name
@@ -93,9 +94,9 @@ std::string getWord(const std::string& _sentence, uint8_t _wordpos) {
 
     auto get_next_word = [&iss](std::string& _word){
         if(!(iss >> _word)) _word = "";
-        if ((_word[0] == '\'') || (_word[0] == '\"')) {
+        if (_word[0] == '\'') {
             std::string tmp(_word);
-            while ((tmp.back() != '\'') && (tmp.back() != '\"')) {
+            while (tmp.back() != '\'') {
                 if (!(iss >> tmp)) {
                     _word += '\'';
                     break;
@@ -152,15 +153,15 @@ std::string json_mail_form(const std::string& _sender, const Json::Value& _conte
 
 /**
  * @brief parse a data block to json-type
- * @param _userlist: the data block in vector<pair> form
+ * @param _userlist: the user list in vector<pair> form
  * @return json-type from data block
  */
 Json::Value data_to_json(const std::vector<std::pair<std::string, USER_STATUS>>& _userlist) {
     Json::Value ret;
     for (const auto& _usr : _userlist) {
         Json::Value elm;
-        elm["username"] = _usr.first;
-        elm["state"] = static_cast<uint8_t>(_usr.second);
+        elm[USERNAME] = _usr.first;
+        elm[STATUS] = static_cast<uint8_t>(_usr.second);
         ret.append(elm);
     }
     return ret;

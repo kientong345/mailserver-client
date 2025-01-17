@@ -31,6 +31,8 @@
 
 #define SENT_MAILBOX                   "sent_mailbox"
 #define RCV_MAILBOX                    "received_mailbox"
+#define USERNAME                       "username"
+#define STATUS                         "status"
 #define LOGIN_SUCCEED                  (std::string("login succeed"))
 #define LOGIN_FAILED                   (std::string("login failed"))
 #define REGISTER_SUCCEED               (std::string("register succeed"))

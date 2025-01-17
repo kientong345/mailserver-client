@@ -96,9 +96,9 @@ std::string getWord(const std::string& _sentence, uint8_t _wordpos) {
 
     auto get_next_word = [&iss](std::string& _word){
         if(!(iss >> _word)) _word = "";
-        if ((_word[0] == '\'') || (_word[0] == '\"')) {
+        if (_word[0] == '\'') {
             std::string tmp(_word);
-            while ((tmp.back() != '\'') && (tmp.back() != '\"')) {
+            while (tmp.back() != '\'') {
                 if (!(iss >> tmp)) {
                     _word += '\'';
                     break;

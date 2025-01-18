@@ -30,6 +30,10 @@ req_t parseRequest(const std::string& _message) {
         req.first = REQ_TOSERVER;
         req.second = std::make_shared<std::string>(getWord(_message, 2)); // message to be sent to server
     }
+    else if (req_type == RELOAD) {
+        req.first = REQ_RELOAD;
+        req.second = std::make_shared<std::string>(getWord(_message, 2)); // message to be sent to server
+    }
     else if (req_type == SHOWCHAT) {
         req.first = REQ_SHOWCHAT;
         req.second = std::make_shared<std::string>(getWord(_message, 2)); // chat history between you and this user

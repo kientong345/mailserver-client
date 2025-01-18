@@ -50,6 +50,7 @@
 #define CHANGEPASSWORD          "changepassword"
 #define GIVEMEUSERLIST          "givemeuserlist"
 #define TOSERVER                "toserver"
+#define RELOAD                  "reload"
 #define SHOWCHAT                "showchat"
 #define INPUT_LEFT              "left"
 #define INPUT_RIGHT             "right"
@@ -74,6 +75,7 @@ typedef enum {
     REQ_GIVEMEUSERLIST,
     REQ_TOSERVER,
     /* client request */
+    REQ_RELOAD,
     REQ_SHOWCHAT,
     REQ_LEFT,
     REQ_RIGHT,

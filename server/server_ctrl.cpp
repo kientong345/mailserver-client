@@ -116,6 +116,7 @@ ERROR_CODE Server_Ctrl::execute_request(const req_t& _request) {
     }
     else if (req_type == REQ_LOGOUT) {
         //return E_TERM;
+        _soft_database->update_client_status(_client_name, OFFLINE);
         verify_account();
     }
     else if (req_type == REQ_SENDTO) {

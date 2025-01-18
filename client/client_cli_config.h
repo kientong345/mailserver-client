@@ -421,7 +421,7 @@ refresh();
 
 #define FRIENDLIST_NAME_ONLINE(USER_NAME, POS)  \
 (text) { \
-    std::to_string(POS) + ". " + USER_NAME, \
+    USER_NAME, \
     GREEN, \
     { \
         {10, 5 + (POS-1)*2}, \
@@ -445,7 +445,7 @@ refresh();
 
 #define FRIENDLIST_NAME_OFFLINE(USER_NAME, POS)  \
 (text) { \
-    std::to_string(POS) + ". " + USER_NAME, \
+    USER_NAME, \
     RED, \
     { \
         {10, 5 + (POS-1)*2}, \

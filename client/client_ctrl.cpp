@@ -600,11 +600,11 @@ void Client_Ctrl::FriendList_State::update_user_list() {
 }
 
 void Client_Ctrl::FriendList_State::update_user_display_list() {
-    for (int i = 1; i <= 6; ++i) {
+    for (uint8_t i = 1; i <= 6; ++i) {
         if (_current_option - _current_pos + i > _user_list.size()) break;
-        std::string _username = _user_list.at(_current_option - _current_pos + i - 1).first;
-        USER_STATUS _status = _user_list.at(_current_option - _current_pos + i - 1).second;
-        (_status == ONLINE) ?
+        uint8_t user_pos = _current_option - _current_pos + i - 1;
+        std::string _username = _user_list.at(user_pos).first;
+        (_user_list.at(user_pos).second == ONLINE) ?
         _client->_cli->display_multiple_entity(FRIENDLIST_USER_ONLINE(_username, i)) :
         _client->_cli->display_multiple_entity(FRIENDLIST_USER_OFFLINE(_username, i));
     }
@@ -668,7 +668,29 @@ STATE_TYPE Client_Ctrl::FriendList_State::select() {
     return STATE_CHAT;
 }
 STATE_TYPE Client_Ctrl::FriendList_State::execute_specific_request(const req_t& _request) {
-    return STATE_NOCHANGE;
+    REQ_TYPE req_type = _request.first;
+    switch (req_type) {
+    case REQ_LEFT:
+        return left();
+    case REQ_RIGHT:
+        return right();
+    case REQ_UP:
+        return up();
+    case REQ_DOWN:
+        return down();
+    case REQ_SELECT:
+        return select();
+    case REQ_RELOAD:
+        update_user_list();
+        if (_friend_num > 0) {
+            _current_option = 1;
+            _current_pos = 1;
+        }
+        show();
+        return STATE_NOCHANGE;
+    default:
+        return STATE_NOCHANGE;
+    }
 }
 
 Client_Ctrl::Setting_State::Setting_State(Client_Ctrl* _target)

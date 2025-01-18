@@ -184,8 +184,14 @@ public:
     */
     class FriendList_State : public State {
     private:
+        std::vector<std::pair<std::string, USER_STATUS>> _user_list;
         uint16_t _current_option;
+        uint8_t _current_pos;
         uint16_t _friend_num;
+        void update_indicator();
+        void clear_indicator();
+        void update_user_list();
+        void update_user_display_list();
     public:
         FriendList_State(Client_Ctrl* _target);
         ~FriendList_State() = default;

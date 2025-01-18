@@ -406,6 +406,109 @@ refresh();
     CYAN \
 }
 
-#define FRIENDLIST_INIT_SCREEN    (CMD_IMG)
+#define FRIENDLIST_TEXT  \
+(image) { \
+    "  ||   YOUR FRIEND LIST   ||  \n" \
+    "  <<___      ++++      ___>>  \n" \
+    "     '=================='     \n", \
+    YELLOW, \
+    { \
+        {25, 1}, \
+        30, \
+        3 \
+    } \
+}
+
+#define FRIENDLIST_NAME_ONLINE(USER_NAME, POS)  \
+(text) { \
+    std::to_string(POS) + ". " + USER_NAME, \
+    GREEN, \
+    { \
+        {10, 5 + (POS-1)*2}, \
+        26, \
+        1 \
+    } \
+}
+
+#define FRIENDLIST_STATUS_ONLINE(POS)  \
+(text) { \
+    "online", \
+    GREEN, \
+    { \
+        {69, 5 + (POS-1)*2}, \
+        7, \
+        1 \
+    } \
+}
+
+#define FRIENDLIST_USER_ONLINE(USER_NAME, POS)     (FRIENDLIST_NAME_ONLINE(USER_NAME, POS)), (FRIENDLIST_STATUS_ONLINE(POS))
+
+#define FRIENDLIST_NAME_OFFLINE(USER_NAME, POS)  \
+(text) { \
+    std::to_string(POS) + ". " + USER_NAME, \
+    RED, \
+    { \
+        {10, 5 + (POS-1)*2}, \
+        26, \
+        1 \
+    } \
+}
+
+#define FRIENDLIST_STATUS_OFFLINE(POS)  \
+(text) { \
+    "offline", \
+    RED, \
+    { \
+        {69, 5 + (POS-1)*2}, \
+        7, \
+        1 \
+    } \
+}
+
+#define FRIENDLIST_USER_OFFLINE(USER_NAME, POS)     (FRIENDLIST_NAME_OFFLINE(USER_NAME, POS)), (FRIENDLIST_STATUS_OFFLINE(POS))
+
+#define FRIENDLIST_IND_POS_1  \
+(area) { \
+    {4, 5}, \
+    2, \
+    1 \
+}
+
+#define FRIENDLIST_IND_POS_2  \
+(area) { \
+    {4, 7}, \
+    2, \
+    1 \
+}
+
+#define FRIENDLIST_IND_POS_3  \
+(area) { \
+    {4, 9}, \
+    2, \
+    1 \
+}
+
+#define FRIENDLIST_IND_POS_4  \
+(area) { \
+    {4, 11}, \
+    2, \
+    1 \
+}
+
+#define FRIENDLIST_IND_POS_5  \
+(area) { \
+    {4, 13}, \
+    2, \
+    1 \
+}
+
+#define FRIENDLIST_IND_POS_6  \
+(area) { \
+    {4, 15}, \
+    2, \
+    1 \
+}
+
+#define FRIENDLIST_INIT_SCREEN    (CMD_IMG), (FRIENDLIST_TEXT)
 
 #endif /* __CLIENT_CLI_CONFIG_H__ */

@@ -142,3 +142,17 @@ Json::Value string_to_json(const std::string& _jsonstring) {
     jsonrd.parse(_jsonstring, ret);
     return ret;
 }
+
+std::vector<std::pair<std::string, USER_STATUS>> get_user_list(const Json::Value& _usrlist) {
+    std::vector<std::pair<std::string, USER_STATUS>> ret;
+    for (const auto& item : _usrlist) {
+        if (item.isObject()) {
+            for (const auto& usrname : item.getMemberNames()) {
+                if (item[usrname].isInt()) {
+                    ret.emplace_back(usrname, static_cast<USER_STATUS>(item[usrname].asInt()));
+                }
+            }
+        }
+    }
+    return ret;
+}

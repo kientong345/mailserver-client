@@ -35,6 +35,8 @@
 #define LOGIN_FAILED            (std::string("login failed"))
 #define REGISTER_SUCCEED        (std::string("register succeed"))
 #define REGISTER_FAILED         (std::string("register failed"))
+#define USERNAME                "username"
+#define STATUS                  "status"
 
 #define LOGIN                   "login"
 #define REGISTER                "register"

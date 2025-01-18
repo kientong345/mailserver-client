@@ -159,8 +159,7 @@ Json::Value data_to_json(const std::vector<std::pair<std::string, USER_STATUS>>&
     Json::Value ret;
     for (const auto& _usr : _userlist) {
         Json::Value elm;
-        elm[USERNAME] = _usr.first;
-        elm[STATUS] = static_cast<uint8_t>(_usr.second);
+        elm[_usr.first] = static_cast<uint8_t>(_usr.second);
         ret.append(elm);
     }
     return ret;

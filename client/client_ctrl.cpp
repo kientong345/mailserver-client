@@ -534,18 +534,93 @@ STATE_TYPE Client_Ctrl::Menu_State::execute_specific_request(const req_t& _reque
 }
 
 Client_Ctrl::FriendList_State::FriendList_State(Client_Ctrl* _target)
-: State(_target), _current_option(0), _friend_num(0) {
+: State(_target), _current_option(0), _current_pos(0), _friend_num(0) {
     // update _current_option and _friend_num
+    update_user_list();
+    if (_friend_num > 0) {
+        _current_option = 1;
+        _current_pos = 1;
+    }
+}
+
+void Client_Ctrl::FriendList_State::update_indicator() {
+    switch (_current_pos) {
+    case 1:
+        _client->_cli->display_entity(INDICATOR(FRIENDLIST_IND_POS_1));
+        break;
+    case 2:
+        _client->_cli->display_entity(INDICATOR(FRIENDLIST_IND_POS_2));
+        break;
+    case 3:
+        _client->_cli->display_entity(INDICATOR(FRIENDLIST_IND_POS_3));
+        break;
+    case 4:
+        _client->_cli->display_entity(INDICATOR(FRIENDLIST_IND_POS_4));
+        break;
+    case 5:
+        _client->_cli->display_entity(INDICATOR(FRIENDLIST_IND_POS_5));
+        break;
+    case 6:
+        _client->_cli->display_entity(INDICATOR(FRIENDLIST_IND_POS_6));
+        break;
+    default:
+        break;
+    }
+}
+
+void Client_Ctrl::FriendList_State::clear_indicator() {
+    switch (_current_pos) {
+    case 1:
+        _client->_cli->erase_area(FRIENDLIST_IND_POS_1);
+        break;
+    case 2:
+        _client->_cli->erase_area(FRIENDLIST_IND_POS_2);
+        break;
+    case 3:
+        _client->_cli->erase_area(FRIENDLIST_IND_POS_3);
+        break;
+    case 4:
+        _client->_cli->erase_area(FRIENDLIST_IND_POS_4);
+        break;
+    case 5:
+        _client->_cli->erase_area(FRIENDLIST_IND_POS_5);
+        break;
+    case 6:
+        _client->_cli->erase_area(FRIENDLIST_IND_POS_6);
+        break;
+    default:
+        break;
+    }
+}
+
+void Client_Ctrl::FriendList_State::update_user_list() {
+    std::string _usr_list_str = std::move(_client->send_request_wait_response(GIVEMEUSERLIST));
+    _user_list = std::move(get_user_list(string_to_json(_usr_list_str)));
+    _friend_num = _user_list.size();
+}
+
+void Client_Ctrl::FriendList_State::update_user_display_list() {
+    for (int i = 1; i <= 6; ++i) {
+        if (_current_option - _current_pos + i > _user_list.size()) break;
+        std::string _username = _user_list.at(_current_option - _current_pos + i - 1).first;
+        USER_STATUS _status = _user_list.at(_current_option - _current_pos + i - 1).second;
+        (_status == ONLINE) ?
+        _client->_cli->display_multiple_entity(FRIENDLIST_USER_ONLINE(_username, i)) :
+        _client->_cli->display_multiple_entity(FRIENDLIST_USER_OFFLINE(_username, i));
+    }
 }
 
 void Client_Ctrl::FriendList_State::show() {
-    std::string _usr_list = std::move(_client->send_request_wait_response(GIVEMEUSERLIST));
     _client->_cli->display_allscreen(FRIENDLIST_SCREEN);
     _client->_cli->display_multiple_entity(FRIENDLIST_INIT_SCREEN);
+    update_user_display_list();
+    update_indicator();
 }
+
 STATE_TYPE Client_Ctrl::FriendList_State::left() {
     return STATE_MENU;
 }
+
 STATE_TYPE Client_Ctrl::FriendList_State::right() {
     /* may do some actions:
     add friend,
@@ -559,13 +634,33 @@ STATE_TYPE Client_Ctrl::FriendList_State::right() {
 }
 STATE_TYPE Client_Ctrl::FriendList_State::up() {
     if (_friend_num > 0) {
+        clear_indicator();
+        if (_current_pos == 1) {
+            _current_pos = (_current_option > 1) ? 1 : 6;
+            _current_pos = (_current_pos < _friend_num) ? _current_pos : _friend_num;
+            update_user_display_list();
+        }
+        else {
+            --_current_pos;
+        }
         _current_option = (_current_option > 1) ? _current_option-1 : _friend_num;
+        update_indicator();
     }
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::FriendList_State::down() {
     if (_friend_num > 0) {
+        clear_indicator();
+        if (_current_pos == 6) {
+            _current_pos = (_current_option < _friend_num) ? 6 : 1;
+            update_user_display_list();
+        }
+        else {
+            ++_current_pos;
+            _current_pos = (_current_pos < _friend_num) ? _current_pos : _friend_num;
+        }
         _current_option = (_current_option < _friend_num) ? _current_option+1 : 1;
+        update_indicator();
     }
     return STATE_NOCHANGE;
 }

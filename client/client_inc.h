@@ -57,7 +57,7 @@
 #define INPUT_UP                "up"
 #define INPUT_DOWN              "down"
 #define INPUT_SELECT            "select"
-#define INPUT_SWITCH            "switch"
+#define INPUT_SWITCH            "sw"
 
 typedef enum {
     REQ_UNIDENTIFY,

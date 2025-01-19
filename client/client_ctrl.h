@@ -300,6 +300,7 @@ public:
         void execute_request(const req_t& _request);
     };
     ClientManager _manager;
+    std::string _current_friend_name;
 };
 
 #endif /* __CLIENT_CTRL_H__ */

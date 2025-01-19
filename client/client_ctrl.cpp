@@ -615,6 +615,7 @@ void Client_Ctrl::FriendList_State::show() {
     _client->_cli->display_multiple_entity(FRIENDLIST_INIT_SCREEN);
     update_user_display_list();
     update_indicator();
+    DEBUG_LOG(_user_list.at(_current_pos-1).first);
 }
 
 STATE_TYPE Client_Ctrl::FriendList_State::left() {
@@ -646,6 +647,7 @@ STATE_TYPE Client_Ctrl::FriendList_State::up() {
         _current_option = (_current_option > 1) ? _current_option-1 : _friend_num;
         update_indicator();
     }
+    DEBUG_LOG(_user_list.at(_current_pos-1).first);
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::FriendList_State::down() {
@@ -657,14 +659,16 @@ STATE_TYPE Client_Ctrl::FriendList_State::down() {
         }
         else {
             ++_current_pos;
-            _current_pos = (_current_pos < _friend_num) ? _current_pos : _friend_num;
+            _current_pos = (_current_pos <= _friend_num) ? _current_pos : 1;
         }
         _current_option = (_current_option < _friend_num) ? _current_option+1 : 1;
         update_indicator();
     }
+    DEBUG_LOG(_user_list.at(_current_pos-1).first);
     return STATE_NOCHANGE;
 }
 STATE_TYPE Client_Ctrl::FriendList_State::select() {
+    _client->_current_friend_name = _user_list.at(_current_pos-1).first;
     return STATE_CHAT;
 }
 STATE_TYPE Client_Ctrl::FriendList_State::execute_specific_request(const req_t& _request) {

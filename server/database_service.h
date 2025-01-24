@@ -75,4 +75,16 @@ public:
     ~Hard_Database() override;
 };
 
+class DatabaseManager {
+private:
+    Database* _soft_database;
+    Database* _hard_database;
+
+public:
+    DatabaseManager(Database* _soft_database, Database* _hard_database);
+    ~DatabaseManager();
+    
+
+};
+
 #endif /* __DATABASE_SERVICE_H__ */

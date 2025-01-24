@@ -249,6 +249,7 @@ STATE_TYPE Client_Ctrl::Login_State::select() {
         std::string res = std::move(_client->send_request_wait_response(LOGIN " " + _user_name + " " + _password));
         if (res == LOGIN_SUCCEED) {
             _client->_login_succeed = true;
+            _client->_current_username = _user_name;
             return STATE_MENU;
         }
         else {
@@ -277,6 +278,7 @@ STATE_TYPE Client_Ctrl::Login_State::execute_specific_request(const req_t& _requ
         std::string res = std::move(_client->send_request_wait_response(LOGIN " " + content->first + " " + content->second));
         if (res == LOGIN_SUCCEED) {
             _client->_login_succeed = true;
+            _client->_current_username = _user_name;
             return STATE_MENU;
         }
         else {
@@ -383,6 +385,7 @@ STATE_TYPE Client_Ctrl::Register_State::select() {
         std::string res = std::move(_client->send_request_wait_response(REGISTER " " + _user_name + " " + _password));
         if (res == REGISTER_SUCCEED) {
             _client->_login_succeed = true;
+            _client->_current_username = _user_name;
             return STATE_MENU;
         }
         else {
@@ -412,6 +415,7 @@ STATE_TYPE Client_Ctrl::Register_State::execute_specific_request(const req_t& _r
         std::string res = std::move(_client->send_request_wait_response(REGISTER " " + content->first + " " + content->second));
         if (res == REGISTER_SUCCEED) {
             _client->_login_succeed = true;
+            _client->_current_username = _user_name;
             return STATE_MENU;
         }
         else {
@@ -480,6 +484,7 @@ void Client_Ctrl::Menu_State::show() {
 }
 STATE_TYPE Client_Ctrl::Menu_State::left() {
     _client->_transporter->send_request(LOGOUT);
+    _client->_current_username = "";
     return STATE_LOGIN;
 }
 STATE_TYPE Client_Ctrl::Menu_State::right() {
@@ -599,7 +604,7 @@ void Client_Ctrl::FriendList_State::update_user_list() {
     _friend_num = _user_list.size();
 }
 
-void Client_Ctrl::FriendList_State::update_user_display_list() {
+void Client_Ctrl::FriendList_State::update_user_list_display() {
     for (uint8_t i = 1; i <= 6; ++i) {
         if (_current_option - _current_pos + i > _user_list.size()) break;
         uint8_t user_pos = _current_option - _current_pos + i - 1;
@@ -613,7 +618,7 @@ void Client_Ctrl::FriendList_State::update_user_display_list() {
 void Client_Ctrl::FriendList_State::show() {
     _client->_cli->display_allscreen(FRIENDLIST_SCREEN);
     _client->_cli->display_multiple_entity(FRIENDLIST_INIT_SCREEN);
-    update_user_display_list();
+    update_user_list_display();
     update_indicator();
     DEBUG_LOG(_user_list.at(_current_pos-1).first);
 }
@@ -639,7 +644,7 @@ STATE_TYPE Client_Ctrl::FriendList_State::up() {
         if (_current_pos == 1) {
             _current_pos = (_current_option > 1) ? 1 : 6;
             _current_pos = (_current_pos < _friend_num) ? _current_pos : _friend_num;
-            update_user_display_list();
+            update_user_list_display();
         }
         else {
             --_current_pos;
@@ -655,7 +660,7 @@ STATE_TYPE Client_Ctrl::FriendList_State::down() {
         clear_indicator();
         if (_current_pos == 6) {
             _current_pos = (_current_option < _friend_num) ? 6 : 1;
-            update_user_display_list();
+            update_user_list_display();
         }
         else {
             ++_current_pos;
@@ -797,12 +802,40 @@ STATE_TYPE Client_Ctrl::Info_State::execute_specific_request(const req_t& _reque
 }
 
 Client_Ctrl::Chat_State::Chat_State(Client_Ctrl* _target)
-: State(_target) {
+: State(_target), _friendname(_client->_current_friend_name), msg_offset(0),
+  _mail_manager(_client->_sent_mailbox, _client->_received_mailbox),
+  _ischatting(true) {
+    update_conversation_thread([](){
+        _conversation_cache = std::move(_mail_manager.get_conversation(_friendname, 50));
+        while(_ischatting) {
+            update_conversation();
+            // no need because:
+            // this is called in update_conversation->down->update_conversation_display()
+            // update_conversation_display();
+        }
+    });
+}
 
+Client_Ctrl::Chat_State::~Chat_State() {
+    _ischatting = false;
+    _mail_manager.unblock();
+    if (update_conversation_thread.joinable()) {
+        update_conversation_thread.join();
+    }
+}
+
+void Client_Ctrl::Chat_State::update_conversation() {
+    _conversation_cache.push_back(std::move(_mail_manager.get_latest_chatline(_friendname)));
+    ++msg_offset;
+    down();
+}
+
+void Client_Ctrl::Chat_State::update_conversation_display() {
+    // display base on _conversation_cache and msg_offset
 }
 
 void Client_Ctrl::Chat_State::show() {
-
+    _client->_cli->display_allscreen(CHAT_SCREEN);
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::left() {
@@ -813,15 +846,24 @@ STATE_TYPE Client_Ctrl::Chat_State::right() {
     if (_message != "") {
         _client->_transporter->send_request(SENDTO " " + _friendname + " " + _message + __CURRENT_TIME__);
         _message = "";
+        update_conversation_display()
     }
     return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::up() {
+    if (msg_offset < _conversation.size()-1) {
+        ++msg_offset;
+        update_conversation_display();
+    }
     return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::down() {
+    if (msg_offset > 0) {
+        --msg_offset;
+        update_conversation_display();
+    }
     return STATE_NOCHANGE;
 }
 

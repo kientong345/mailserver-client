@@ -137,6 +137,7 @@ struct chat_line {
     std::string chat_owner;
     std::string chat_content;
     uint64_t chat_time;
+    chat_line() = default;
     chat_line(const std::string& _owner, const std::string& _content, uint64_t _time) 
     : chat_owner(_owner), chat_content(_content), chat_time(_time) {}
 };

@@ -17,6 +17,7 @@ protected:
 
     CTRL_MODE _current_mode;
     bool _login_succeed;
+    std::string _current_username;
 
     void user_handler();
     void ui_handler();
@@ -191,7 +192,7 @@ public:
         void update_indicator();
         void clear_indicator();
         void update_user_list();
-        void update_user_display_list();
+        void update_user_list_display();
     public:
         FriendList_State(Client_Ctrl* _target);
         ~FriendList_State() = default;
@@ -269,11 +270,18 @@ public:
     */
     class Chat_State : public State {
     private:
-        std::string _friendname;
-        std::string _message;
+        std::vector<chat_line> _conversation_cache; /* temperary hold the conversation */
+        MailboxManager _mail_manager; /* to get the latest message */
+        std::string _friendname; /* the user who is chatting with you */
+        std::string _message; /* the message you sent */
+        uint16_t msg_offset; /* the position in conversation of the last message on screen(offset from end to begin) */
+        void update_conversation();
+        void update_conversation_display();
+        std::thread update_conversation_thread;
+        bool _ischatting;
     public:
         Chat_State(Client_Ctrl* _target);
-        ~Chat_State() = default;
+        ~Chat_State();
         void show() override;
         STATE_TYPE left() override;
         STATE_TYPE right() override;

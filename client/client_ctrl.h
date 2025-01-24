@@ -277,6 +277,7 @@ public:
         uint16_t msg_offset; /* the position in conversation of the last message on screen(offset from end to begin) */
         void update_conversation();
         void update_conversation_display();
+        void update_conversation_func();
         std::thread update_conversation_thread;
         bool _ischatting;
     public:

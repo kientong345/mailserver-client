@@ -63,13 +63,13 @@ uint16_t Mailbox<MailType>::number_of_mail() {
 }
 
 template<class MailType>
-void Mailbox<MailType>::set_observer(const MailboxManager* _observer) {
+void Mailbox<MailType>::set_observer(MailboxManager* _observer) {
     _mail_observer = _observer;
 }
 
 MailboxManager::MailboxManager(Mailbox<sent_mail>* _sent_mailbox, Mailbox<received_mail>* _received_mailbox)
 : sent_mailbox(_sent_mailbox), received_mailbox(_received_mailbox),
-  latest_sent_mail(std::make_unique<sent_mail>()), latest_recv_mail(std::make_unique<received_mail>()),
+  latest_sent_mail(nullptr), latest_recv_mail(nullptr),
   force_quit(false) {
     sent_mailbox->set_observer(this);
     received_mailbox->set_observer(this);
@@ -94,7 +94,7 @@ void MailboxManager::unblock() {
 void MailboxManager::update_new_mail(const sent_mail& _new_mail) {
     {
         std::lock_guard<std::mutex> glock(mut);
-        *latest_sent_mail = _new_mail;
+        latest_sent_mail = std::make_unique<sent_mail>(_new_mail);
     }
     cond_var.notify_all();
 }
@@ -102,7 +102,7 @@ void MailboxManager::update_new_mail(const sent_mail& _new_mail) {
 void MailboxManager::update_new_mail(const received_mail& _new_mail) {
     {
         std::lock_guard<std::mutex> glock(mut);
-        *latest_recv_mail = _new_mail;
+        latest_recv_mail = std::make_unique<received_mail>(_new_mail);
     }
     cond_var.notify_all();
 }
@@ -155,7 +155,7 @@ std::vector<chat_line> MailboxManager::get_conversation(const std::string& user,
  * @return latest chat line with username filter
  */
 chat_line MailboxManager::get_latest_chatline(const std::string& user) {
-    chat_line ret;
+    chat_line ret("", "", 0);
     std::unique_lock<std::mutex> ulock(mut);
     // wait until there is a mail to retrieve
     cond_var.wait(ulock, [this, &user]() {

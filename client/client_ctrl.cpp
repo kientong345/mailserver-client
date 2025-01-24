@@ -805,15 +805,7 @@ Client_Ctrl::Chat_State::Chat_State(Client_Ctrl* _target)
 : State(_target), _friendname(_client->_current_friend_name), msg_offset(0),
   _mail_manager(_client->_sent_mailbox, _client->_received_mailbox),
   _ischatting(true) {
-    update_conversation_thread([](){
-        _conversation_cache = std::move(_mail_manager.get_conversation(_friendname, 50));
-        while(_ischatting) {
-            update_conversation();
-            // no need because:
-            // this is called in update_conversation->down->update_conversation_display()
-            // update_conversation_display();
-        }
-    });
+    update_conversation_thread = std::thread(&Client_Ctrl::Chat_State::update_conversation_func, this);
 }
 
 Client_Ctrl::Chat_State::~Chat_State() {
@@ -821,6 +813,16 @@ Client_Ctrl::Chat_State::~Chat_State() {
     _mail_manager.unblock();
     if (update_conversation_thread.joinable()) {
         update_conversation_thread.join();
+    }
+}
+
+void Client_Ctrl::Chat_State::update_conversation_func() {
+    _conversation_cache = std::move(_mail_manager.get_conversation(_friendname, 50));
+    while(_ischatting) {
+        update_conversation();
+        // no need because:
+        // this is called in update_conversation->down->update_conversation_display()
+        // update_conversation_display();
     }
 }
 
@@ -846,13 +848,13 @@ STATE_TYPE Client_Ctrl::Chat_State::right() {
     if (_message != "") {
         _client->_transporter->send_request(SENDTO " " + _friendname + " " + _message + __CURRENT_TIME__);
         _message = "";
-        update_conversation_display()
+        update_conversation_display();
     }
     return STATE_NOCHANGE;
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::up() {
-    if (msg_offset < _conversation.size()-1) {
+    if (msg_offset < _conversation_cache.size()-1) {
         ++msg_offset;
         update_conversation_display();
     }

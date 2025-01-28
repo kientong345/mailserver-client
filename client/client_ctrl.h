@@ -6,6 +6,7 @@
 #include "client_mailbox.h"
 // #include "client_graphic.h"
 #include "client_cli.h"
+#include <atomic>
 
 class Client_Ctrl {
 protected:
@@ -274,12 +275,12 @@ public:
         MailboxManager _mail_manager; /* to get the latest message */
         std::string _friendname; /* the user who is chatting with you */
         std::string _message; /* the message you sent */
-        uint16_t msg_offset; /* the position in conversation of the last message on screen(offset from end to begin) */
+        std::atomic<uint16_t> msg_offset; /* the position in conversation of the last message on screen(offset from end to begin) */
         void update_conversation();
         void update_conversation_display();
         void update_conversation_func();
         std::thread update_conversation_thread;
-        bool _ischatting;
+        std::atomic<bool> _ischatting;
     public:
         Chat_State(Client_Ctrl* _target);
         ~Chat_State();

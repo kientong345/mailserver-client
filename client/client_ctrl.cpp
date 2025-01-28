@@ -805,6 +805,7 @@ Client_Ctrl::Chat_State::Chat_State(Client_Ctrl* _target)
 : State(_target), _friendname(_client->_current_friend_name), msg_offset(0),
   _mail_manager(_client->_sent_mailbox, _client->_received_mailbox),
   _ischatting(true) {
+    _conversation_cache = std::move(_mail_manager.get_conversation(_friendname, 50));
     update_conversation_thread = std::thread(&Client_Ctrl::Chat_State::update_conversation_func, this);
 }
 
@@ -817,27 +818,39 @@ Client_Ctrl::Chat_State::~Chat_State() {
 }
 
 void Client_Ctrl::Chat_State::update_conversation_func() {
-    _conversation_cache = std::move(_mail_manager.get_conversation(_friendname, 50));
     while(_ischatting) {
         update_conversation();
-        // no need because:
-        // this is called in update_conversation->down->update_conversation_display()
-        // update_conversation_display();
+        if (msg_offset == 0) {
+            update_conversation_display();
+        }
     }
 }
 
 void Client_Ctrl::Chat_State::update_conversation() {
     _conversation_cache.push_back(std::move(_mail_manager.get_latest_chatline(_friendname)));
-    ++msg_offset;
-    down();
+    if (msg_offset != 0) {
+        ++msg_offset;
+    }
 }
 
 void Client_Ctrl::Chat_State::update_conversation_display() {
-    // display base on _conversation_cache and msg_offset
+    if (msg_offset == 0) {
+        uint8_t counter = 0;
+        auto it = _conversation_cache.crbegin();
+        while ((it != _conversation_cache.crend()) && (counter < 20)) {
+            // display the message
+            ++counter;
+            ++it;
+        }
+    }
+    else { // msg_offset != 0
+
+    }
 }
 
 void Client_Ctrl::Chat_State::show() {
     _client->_cli->display_allscreen(CHAT_SCREEN);
+    update_conversation_display();
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::left() {
@@ -848,7 +861,6 @@ STATE_TYPE Client_Ctrl::Chat_State::right() {
     if (_message != "") {
         _client->_transporter->send_request(SENDTO " " + _friendname + " " + _message + __CURRENT_TIME__);
         _message = "";
-        update_conversation_display();
     }
     return STATE_NOCHANGE;
 }
@@ -870,6 +882,7 @@ STATE_TYPE Client_Ctrl::Chat_State::down() {
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::select() {
+    // get user input
     return STATE_NOCHANGE;
 }
 

@@ -835,11 +835,11 @@ void Client_Ctrl::Chat_State::update_conversation() {
 
 void Client_Ctrl::Chat_State::update_conversation_display() {
     if (msg_offset == 0) {
-        uint8_t counter = 0;
+        uint8_t scr_offset = 0;
         auto it = _conversation_cache.crbegin();
-        while ((it != _conversation_cache.crend()) && (counter < 20)) {
-            // display the message
-            ++counter;
+        while ((it != _conversation_cache.crend()) && (scr_offset < 15)) {
+            _client->_cli->display_multiple_entity(CHAT_LINE(getHeader(*it), it->chat_content, scr_offset));
+            ++scr_offset;
             ++it;
         }
     }
@@ -882,7 +882,10 @@ STATE_TYPE Client_Ctrl::Chat_State::down() {
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::select() {
-    // get user input
+    _client->_cli->erase_area(CHAT_TYPING_BOX);
+    _client->_cli->pause_ui();
+    _message = std::move(_client->_cli->get_user_cmd(CHAT_TYPING_BOX.base.xPos, CHAT_TYPING_BOX.base.yPos));
+    _client->_cli->continue_ui();
     return STATE_NOCHANGE;
 }
 

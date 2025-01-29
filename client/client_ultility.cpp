@@ -160,3 +160,7 @@ std::vector<std::pair<std::string, USER_STATUS>> get_user_list(const Json::Value
     }
     return ret;
 }
+
+std::string getHeader(const chat_line& _chatline) {
+    return std::string(std::to_string(_chatline.chat_time) + " " + _chatline.chat_owner + ": ");
+}

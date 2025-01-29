@@ -538,9 +538,16 @@ refresh();
 
 #define CHAT_TYPING_BOX  \
 (area) { \
-    {18, 16}, \
+    {17, 15}, \
     50, \
     1 \
+}
+
+#define CHAT_DISP_AREA  \
+(area) { \
+    {4, 1}, \
+    72, \
+    13 \
 }
 
 #define CHAT_LINE_HEADER(TEXT, POS_OFFSET)  \
@@ -548,27 +555,27 @@ refresh();
     TEXT, \
     GREEN, \
     { \
-        {2, 14-POS_OFFSET}, \
-        80, \
+        {4, 13-POS_OFFSET}, \
+        72, \
         1 \
     } \
 }
 
-#define CHAT_LINE_HEADER_LEN(TEXT)    (TEXT.size())
+#define CHAT_LINE_OFFSET(TEXT)    ((int)TEXT.length() + 4)
 
 #define CHAT_LINE_MSG(TEXT, LINE_OFFSET, POS_OFFSET)  \
 (text) { \
     TEXT, \
     WHITE, \
     { \
-        {LINE_OFFSET, 14-POS_OFFSET}, \
-        80-LINE_OFFSET, \
+        {LINE_OFFSET, 13-POS_OFFSET}, \
+        72-LINE_OFFSET, \
         1 \
     } \
 }
 
 #define CHAT_LINE(TEXT_HEADER, TEXT_MSG, POS_OFFSET)  \
 (CHAT_LINE_HEADER(TEXT_HEADER, POS_OFFSET)), \
-(CHAT_LINE_MSG(TEXT_MSG, CHAT_LINE_HEADER_LEN(TEXT_HEADER), POS_OFFSET))
+(CHAT_LINE_MSG(TEXT_MSG, CHAT_LINE_OFFSET(TEXT_HEADER), POS_OFFSET))
 
 #endif /* __CLIENT_CLI_CONFIG_H__ */

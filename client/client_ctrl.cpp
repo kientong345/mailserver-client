@@ -834,6 +834,7 @@ void Client_Ctrl::Chat_State::update_conversation() {
 }
 
 void Client_Ctrl::Chat_State::update_conversation_display() {
+    _client->_cli->erase_area(CHAT_DISP_AREA);
     if (msg_offset == 0) {
         uint8_t scr_offset = 0;
         auto it = _conversation_cache.crbegin();
@@ -859,7 +860,7 @@ STATE_TYPE Client_Ctrl::Chat_State::left() {
 
 STATE_TYPE Client_Ctrl::Chat_State::right() {
     if (_message != "") {
-        _client->_transporter->send_request(SENDTO " " + _friendname + " " + _message + __CURRENT_TIME__);
+        _client->_transporter->send_request(SENDTO " " + mail_form(_friendname, _message, __CURRENT_TIME__));
         _message = "";
     }
     return STATE_NOCHANGE;

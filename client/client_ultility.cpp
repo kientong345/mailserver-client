@@ -161,6 +161,23 @@ std::vector<std::pair<std::string, USER_STATUS>> get_user_list(const Json::Value
     return ret;
 }
 
+/**
+ * @brief get a standard mail-form message from given content and info
+ * @param _sender: the sender of the mail
+ * @param _content: mail content
+ * @param _sent_time: sent time
+ * @return standard mail-form string
+ */
+std::string mail_form(const std::string& _receiver, const std::string& _content, const std::string& _sent_time) {
+    std::string ret("");
+    ret += "\'";
+    ret += _receiver; ret += "\' \'";
+    ret += _content; ret += "\' ";
+    ret += _sent_time;
+
+    return ret;
+}
+
 std::string getHeader(const chat_line& _chatline) {
-    return std::string(std::to_string(_chatline.chat_time) + " " + _chatline.chat_owner + ": ");
+    return std::string(get_std_time(_chatline.chat_time) + " @" + _chatline.chat_owner + ": ");
 }

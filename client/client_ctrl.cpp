@@ -35,6 +35,15 @@ void Client_Ctrl::client_init() {
 
 void Client_Ctrl::client_main() {
     _transporter->connect_to_server(SERVER_IP, SERVER_PORT);
+    _transporter->set_task_on_send_data([this](){
+        std::string _sent_mail = _transporter->get_send_buf();
+        if (getWord(_sent_mail, 1) == SENDTO) {
+            std::string _receiver = getWord(_sent_mail, 2);
+            std::string _content = getWord(_sent_mail, 3);
+            uint64_t _sent_time = std::stoull(getWord(_sent_mail, 4));
+            _sent_mailbox->save_mail(_receiver, _content, _sent_time);
+        }
+    });
     _transporter->set_task_on_receive_data([this](){
         std::string _rcv_mail = _transporter->receive_response();
         std::string _sender = getWord(_rcv_mail, 1);
@@ -803,7 +812,7 @@ STATE_TYPE Client_Ctrl::Info_State::execute_specific_request(const req_t& _reque
 
 Client_Ctrl::Chat_State::Chat_State(Client_Ctrl* _target)
 : State(_target), _friendname(_client->_current_friend_name), msg_offset(0),
-  _mail_manager(_client->_sent_mailbox, _client->_received_mailbox),
+  _mail_manager(_client->_current_username, _client->_sent_mailbox, _client->_received_mailbox),
   _ischatting(true) {
     _conversation_cache = std::move(_mail_manager.get_conversation(_friendname, 50));
     update_conversation_thread = std::thread(&Client_Ctrl::Chat_State::update_conversation_func, this);
@@ -838,7 +847,7 @@ void Client_Ctrl::Chat_State::update_conversation_display() {
     if (msg_offset == 0) {
         uint8_t scr_offset = 0;
         auto it = _conversation_cache.crbegin();
-        while ((it != _conversation_cache.crend()) && (scr_offset < 15)) {
+        while ((it != _conversation_cache.crend()) && (scr_offset < 13)) {
             _client->_cli->display_multiple_entity(CHAT_LINE(getHeader(*it), it->chat_content, scr_offset));
             ++scr_offset;
             ++it;

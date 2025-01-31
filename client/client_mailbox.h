@@ -37,6 +37,7 @@ public:
 
 class MailboxManager {
 private:
+    std::string _current_username;
     Mailbox<sent_mail>* sent_mailbox;
     Mailbox<received_mail>* received_mailbox;
     std::unique_ptr<sent_mail> latest_sent_mail;
@@ -48,7 +49,7 @@ private:
     bool force_quit;
 
 public:
-    MailboxManager(Mailbox<sent_mail>* _sent_mailbox, Mailbox<received_mail>* _received_mailbox);
+    MailboxManager(const std::string& _username, Mailbox<sent_mail>* _sent_mailbox, Mailbox<received_mail>* _received_mailbox);
     ~MailboxManager();
 
     void update_new_mail(const sent_mail& _new_mail);

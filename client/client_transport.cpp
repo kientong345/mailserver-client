@@ -4,6 +4,7 @@
 
 ClientTransporter::ClientTransporter()
 : client_fd(-1),
+  send_task(nullptr),
   receive_task(nullptr) {
     send_buf[0] = '\0';
     rcv_buf[0] = '\0';
@@ -93,6 +94,10 @@ void ClientTransporter::end() {
 
 }
 
+void ClientTransporter::set_task_on_send_data(std::function<void(void)> task_func) {
+    send_task = task_func;
+}
+
 void ClientTransporter::set_task_on_receive_data(std::function<void(void)> task_func) {
     receive_task = task_func;
 }
@@ -111,6 +116,8 @@ void ClientTransporter::send_thread_func() {
         std::unique_lock<std::mutex> ulock(send_mut);
         send_cv.wait(ulock, [this](){return send_buf[0] != '\0';});
         ::send(client_fd, send_buf, sizeof(send_buf), 0);
+        // execute any registered task
+        if (send_task) send_task();
         send_buf[0] = '\0';
     }
 }
@@ -131,4 +138,8 @@ void ClientTransporter::recv_thread_func() {
         // execute any registered task
         if (receive_task) receive_task();
     }
+}
+
+std::string ClientTransporter::get_send_buf() {
+    return std::string(send_buf);
 }

@@ -67,8 +67,8 @@ void Mailbox<MailType>::set_observer(MailboxManager* _observer) {
     _mail_observer = _observer;
 }
 
-MailboxManager::MailboxManager(Mailbox<sent_mail>* _sent_mailbox, Mailbox<received_mail>* _received_mailbox)
-: sent_mailbox(_sent_mailbox), received_mailbox(_received_mailbox),
+MailboxManager::MailboxManager(const std::string& _username, Mailbox<sent_mail>* _sent_mailbox, Mailbox<received_mail>* _received_mailbox)
+: _current_username(_username), sent_mailbox(_sent_mailbox), received_mailbox(_received_mailbox),
   latest_sent_mail(nullptr), latest_recv_mail(nullptr),
   force_quit(false) {
     sent_mailbox->set_observer(this);
@@ -118,7 +118,7 @@ std::vector<chat_line> MailboxManager::get_conversation(const std::string& user,
     uint16_t counter = 0;
     for (const auto& _mail : sent_mailbox->get_mailbox()) {
         if (_mail.receiver == user) {
-            chat_history.emplace_back(_mail.receiver, _mail.content, _mail.sent_time);
+            chat_history.emplace_back(_current_username, _mail.content, _mail.sent_time);
             ++counter;
             if (counter >= msg_num) break;
         }
@@ -169,7 +169,7 @@ chat_line MailboxManager::get_latest_chatline(const std::string& user) {
 
     if (latest_sent_mail && latest_recv_mail) {
         if (latest_sent_mail->sent_time <= latest_recv_mail->rcv_time) {
-            ret = {latest_sent_mail->receiver, latest_sent_mail->content, latest_sent_mail->sent_time};
+            ret = {_current_username, latest_sent_mail->content, latest_sent_mail->sent_time};
             latest_sent_mail = nullptr;
         }
         else if (latest_sent_mail->sent_time > latest_recv_mail->rcv_time) {
@@ -182,7 +182,7 @@ chat_line MailboxManager::get_latest_chatline(const std::string& user) {
         latest_recv_mail = nullptr;
     }
     else if (latest_sent_mail && !latest_recv_mail) {
-        ret = {latest_sent_mail->receiver, latest_sent_mail->content, latest_sent_mail->sent_time};
+        ret = {_current_username, latest_sent_mail->content, latest_sent_mail->sent_time};
         latest_sent_mail = nullptr;
     }
     return ret;

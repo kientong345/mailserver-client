@@ -30,13 +30,17 @@ public:
     std::string receive_response();
     void end();
 
+    void set_task_on_send_data(std::function<void(void)> task_func);
     void set_task_on_receive_data(std::function<void(void)> task_func);
+
+    std::string get_send_buf();
 
     ~ClientTransporter();
 
 private:
     void send_thread_func();
     void recv_thread_func();
+    std::function<void(void)> send_task;
     std::function<void(void)> receive_task;
 
 };

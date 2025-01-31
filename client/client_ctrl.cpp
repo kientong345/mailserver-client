@@ -653,12 +653,12 @@ STATE_TYPE Client_Ctrl::FriendList_State::up() {
         if (_current_pos == 1) {
             _current_pos = (_current_option > 1) ? 1 : 6;
             _current_pos = (_current_pos < _friend_num) ? _current_pos : _friend_num;
-            update_user_list_display();
         }
         else {
             --_current_pos;
         }
         _current_option = (_current_option > 1) ? _current_option-1 : _friend_num;
+        update_user_list_display();
         update_indicator();
     }
     DEBUG_LOG(_user_list.at(_current_pos-1).first);
@@ -669,13 +669,13 @@ STATE_TYPE Client_Ctrl::FriendList_State::down() {
         clear_indicator();
         if (_current_pos == 6) {
             _current_pos = (_current_option < _friend_num) ? 6 : 1;
-            update_user_list_display();
         }
         else {
             ++_current_pos;
             _current_pos = (_current_pos <= _friend_num) ? _current_pos : 1;
         }
         _current_option = (_current_option < _friend_num) ? _current_option+1 : 1;
+        update_user_list_display();
         update_indicator();
     }
     DEBUG_LOG(_user_list.at(_current_pos-1).first);
@@ -844,17 +844,12 @@ void Client_Ctrl::Chat_State::update_conversation() {
 
 void Client_Ctrl::Chat_State::update_conversation_display() {
     _client->_cli->erase_area(CHAT_DISP_AREA);
-    if (msg_offset == 0) {
-        uint8_t scr_offset = 0;
-        auto it = _conversation_cache.crbegin();
-        while ((it != _conversation_cache.crend()) && (scr_offset < 13)) {
-            _client->_cli->display_multiple_entity(CHAT_LINE(getHeader(*it), it->chat_content, scr_offset));
-            ++scr_offset;
-            ++it;
-        }
-    }
-    else { // msg_offset != 0
-
+    uint8_t scr_offset = 0;
+    auto it = _conversation_cache.crbegin() + msg_offset;
+    while ((it != _conversation_cache.crend()) && (scr_offset < 13)) {
+        _client->_cli->display_multiple_entity(CHAT_LINE(getHeader(*it), it->chat_content, scr_offset));
+        ++scr_offset;
+        ++it;
     }
 }
 
@@ -876,7 +871,7 @@ STATE_TYPE Client_Ctrl::Chat_State::right() {
 }
 
 STATE_TYPE Client_Ctrl::Chat_State::up() {
-    if (msg_offset < _conversation_cache.size()-1) {
+    if ((_conversation_cache.size() > 13) && (msg_offset < _conversation_cache.size()-12)) {
         ++msg_offset;
         update_conversation_display();
     }

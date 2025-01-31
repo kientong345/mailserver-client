@@ -131,7 +131,7 @@ std::string get_std_time(uint64_t unix_timestamp) {
     std::time_t _time = static_cast<std::time_t>(unix_timestamp);
     std::tm* local_time = std::localtime(&_time);
     std::ostringstream oss;
-    oss << std::put_time(local_time, "%c");
+    oss << std::put_time(local_time, "%d/%m/%Y %H:%M:%S");
     return oss.str();
 }
 
